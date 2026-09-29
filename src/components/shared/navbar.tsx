@@ -1,5 +1,6 @@
 import { navItems } from '@/app/data/data';
 import Link from 'next/link';
+import { NavLink } from './nav-link';
 import { Menu } from 'lucide-react';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 import {
@@ -21,13 +22,9 @@ export function Navbar() {
         {/* DesktopNavigation */}
         <nav className="hidden items-center gap-6 md:flex">
           {navItems.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <NavLink key={item.href} href={item.href}>
               {item.label}
-            </Link>
+            </NavLink>
           ))}
 
           <Link
