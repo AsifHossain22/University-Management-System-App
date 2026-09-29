@@ -56,16 +56,16 @@ export function Navbar() {
               <Menu className="size-5" />
             </SheetTrigger>
 
-            <SheetContent>
+            <SheetContent className="text-center pt-6">
               <SheetHeader>
                 <SheetTitle>University Management System</SheetTitle>
 
-                <SheetDescription>
+                {/* <SheetDescription>
                   Navigate through the university portal.
-                </SheetDescription>
+                </SheetDescription> */}
               </SheetHeader>
 
-              <nav className="flex flex-col items-center gap-4  p-4">
+              <nav className="flex flex-col items-center gap-4  px-4">
                 {navItems.map(item => (
                   <Link
                     key={item.href}
