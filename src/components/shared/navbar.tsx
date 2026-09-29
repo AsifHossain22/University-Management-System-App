@@ -1,22 +1,14 @@
+import { navItems } from '@/app/data/data';
 import Link from 'next/link';
 import { Menu } from 'lucide-react';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-
-// NavItems
-const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
-  { label: 'Features', href: '/features' },
-  { label: 'Programs', href: '/programs' },
-  { label: 'Contact', href: '/contact' },
-];
 
 export function Navbar() {
   return (
@@ -44,10 +36,12 @@ export function Navbar() {
           >
             Login
           </Link>
+
+          <ThemeToggle />
         </nav>
 
         {/* MobileNavigation */}
-        <div className="md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
           <Sheet>
             <SheetTrigger
               aria-label="Open menu"
@@ -56,16 +50,12 @@ export function Navbar() {
               <Menu className="size-5" />
             </SheetTrigger>
 
-            <SheetContent className="text-center pt-6">
+            <SheetContent className="pt-6 text-center">
               <SheetHeader>
                 <SheetTitle>University Management System</SheetTitle>
-
-                {/* <SheetDescription>
-                  Navigate through the university portal.
-                </SheetDescription> */}
               </SheetHeader>
 
-              <nav className="flex flex-col items-center gap-4  px-4">
+              <nav className="flex flex-col items-center gap-4 px-4">
                 {navItems.map(item => (
                   <Link
                     key={item.href}
@@ -85,6 +75,8 @@ export function Navbar() {
               </nav>
             </SheetContent>
           </Sheet>
+
+          <ThemeToggle />
         </div>
       </div>
     </header>

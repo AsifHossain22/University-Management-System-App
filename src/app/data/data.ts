@@ -1,3 +1,12 @@
+// NavItems
+export const navItems = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/about' },
+  { label: 'Features', href: '/features' },
+  { label: 'Programs', href: '/programs' },
+  { label: 'Contact', href: '/contact' },
+];
+
 // FeaturesData
 export const features = [
   {
