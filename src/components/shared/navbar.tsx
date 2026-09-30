@@ -54,13 +54,9 @@ export function Navbar() {
 
               <nav className="flex flex-col items-center gap-4 px-4">
                 {navItems.map(item => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="text-sm font-medium"
-                  >
+                  <NavLink key={item.href} href={item.href}>
                     {item.label}
-                  </Link>
+                  </NavLink>
                 ))}
 
                 <Link
