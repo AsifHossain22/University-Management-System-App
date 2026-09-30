@@ -59,3 +59,85 @@ export const roles = [
       'Manage university operations, users, departments, programs, courses, semesters, fees, payments and system records.',
   },
 ];
+
+// ProgramAreas
+export const programAreas = [
+  {
+    title: 'Computer Science & Technology',
+    description:
+      'Explore technology-focused academic paths covering software, computing, information systems and digital innovation.',
+  },
+  {
+    title: 'Business & Management',
+    description:
+      'Academic pathways focused on business operations, management, organizational practices and decision-making.',
+  },
+  {
+    title: 'Engineering',
+    description:
+      'Structured academic pathways that combine technical knowledge, problem-solving and practical engineering principles.',
+  },
+  {
+    title: 'Arts & Social Sciences',
+    description:
+      'Academic areas that support critical thinking, communication, social understanding and broader human perspectives.',
+  },
+];
+
+// AcademicSteps
+export const academicSteps = [
+  {
+    number: '01',
+    title: 'Department',
+    description:
+      'Academic programs are organized within university departments that provide their broader academic structure.',
+  },
+  {
+    number: '02',
+    title: 'Program',
+    description:
+      'Each program represents a structured academic path with its own courses and requirements.',
+  },
+  {
+    number: '03',
+    title: 'Course',
+    description:
+      'Programs are built from courses that students can take throughout their academic journey.',
+  },
+  {
+    number: '04',
+    title: 'Semester',
+    description:
+      'Courses are organized across academic semesters to provide a structured progression through the program.',
+  },
+  {
+    number: '05',
+    title: 'Section',
+    description:
+      'Courses can be delivered through sections with assigned instructors and defined capacity.',
+  },
+];
+
+// AcademicExperience
+export const academicExperience = [
+  {
+    title: 'Course Registration',
+    description:
+      'Students can participate in structured course registration workflows connected to their academic records.',
+  },
+  {
+    title: 'Attendance Tracking',
+    description:
+      'Attendance records connect students with their registered course sections and academic activity.',
+  },
+  {
+    title: 'Examinations',
+    description:
+      'Examination records provide a structured way to manage assessments within academic sections.',
+  },
+  {
+    title: 'Results',
+    description:
+      'Student results remain connected to examination and registration records for organized academic tracking.',
+  },
+];

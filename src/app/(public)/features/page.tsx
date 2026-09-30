@@ -1,25 +1,6 @@
 export default function FeaturesPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="border-b py-10 sm:py-12">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Platform features
-          </p>
-
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Everything needed to manage a connected university
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-2xl leading-8 text-muted-foreground">
-            A centralized platform that brings academic management,
-            administration, student services and role-based workflows together
-            in one system.
-          </p>
-        </div>
-      </section>
-
       {/* AcademicManagement */}
       <section className="border-b py-16 sm:py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -87,6 +68,25 @@ export default function FeaturesPage() {
               </p>
             </article>
           </div>
+        </div>
+      </section>
+
+      {/* PlatformFeatures */}
+      <section className="border-b py-10 sm:py-12">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+            Platform features
+          </p>
+
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+            Everything needed to manage a connected university
+          </h1>
+
+          <p className="mx-auto mt-6 max-w-2xl leading-8 text-muted-foreground">
+            A centralized platform that brings academic management,
+            administration, student services and role-based workflows together
+            in one system.
+          </p>
         </div>
       </section>
 
