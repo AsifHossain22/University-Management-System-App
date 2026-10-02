@@ -126,7 +126,7 @@ export function Navbar() {
 
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive cursor-pointer"
                 >
                   <LogOut className="size-4 shrink-0" />
                   <span>Logout</span>
