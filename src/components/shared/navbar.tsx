@@ -32,7 +32,7 @@ const dashboardRoutes = {
 } as const;
 
 export function Navbar() {
-  const { user, isLoading } = useAuth();
+  const { user, setUser, isLoading } = useAuth();
 
   const queryClient = useQueryClient();
 
@@ -46,6 +46,8 @@ export function Navbar() {
 
   const handleLogout = () => {
     clearAuthTokens();
+
+    setUser(null);
 
     queryClient.removeQueries({ queryKey: ['user'] });
 
