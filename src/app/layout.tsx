@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/shared/theme-provider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import '@/app/globals.css';
 import QueryProvider from '@/providers/query.provider';
 import { AuthProvider } from '@/providers/auth.provider';
@@ -27,11 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <ThemeProvider>
-          <QueryProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </QueryProvider>
-        </ThemeProvider>
+        <TooltipProvider>
+          <ThemeProvider>
+            <QueryProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryProvider>
+          </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

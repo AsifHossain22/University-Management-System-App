@@ -8,6 +8,7 @@ import {
   userRegistration,
   verifyEmail,
 } from '@/api/auth.api';
+import { getAccessToken } from '@/lib/auth-storage';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 // UserRegistration
@@ -64,6 +65,8 @@ export function useGetMe() {
   return useQuery({
     queryKey: ['user'],
     queryFn: getMe,
+    enabled: Boolean(getAccessToken()),
     retry: false,
+    refetchOnWindowFocus: false,
   });
 }
