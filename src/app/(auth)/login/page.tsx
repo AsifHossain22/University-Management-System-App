@@ -7,9 +7,11 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLogin } from '@/hooks/auth.hook';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { setAuthTokens } from '@/lib/auth-storage';
 import { useAuth } from '@/providers/auth.provider';
 import { loginSchema } from '@/validation/auth.validation';
@@ -44,6 +46,10 @@ export default function LoginPage() {
         setAuthTokens(accessToken, refreshToken);
         setUser(user);
 
+        toast.success('Login successful.', {
+          description: `Welcome back, ${user.firstName}!`,
+        });
+
         if (user.role === 'STUDENT') {
           router.push('/student-dashboard');
           return;
@@ -51,15 +57,16 @@ export default function LoginPage() {
 
         if (user.role === 'INSTRUCTOR') {
           router.push('/instructor-dashboard');
+          return;
         }
 
         if (user.role === 'ADMIN') {
           router.push('/admin-dashboard');
-          return;
         }
       },
+
       onError: error => {
-        console.error('Login failed:', error);
+        toast.error(getApiErrorMessage(error));
       },
     });
   }
@@ -69,6 +76,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
+
           <p className="mt-2 text-sm text-muted-foreground">
             Login to your University Management System account.
           </p>

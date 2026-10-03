@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import '@/app/globals.css';
 import QueryProvider from '@/providers/query.provider';
 import { AuthProvider } from '@/providers/auth.provider';
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -35,6 +36,8 @@ export default function RootLayout({
             </QueryProvider>
           </ThemeProvider>
         </TooltipProvider>
+
+        <Toaster />
       </body>
     </html>
   );

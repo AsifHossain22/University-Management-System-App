@@ -23,6 +23,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { LayoutDashboard, LogOut, Menu, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { NavLink } from './nav-link';
 
 const dashboardRoutes = {
@@ -33,9 +34,7 @@ const dashboardRoutes = {
 
 export function Navbar() {
   const { user, setUser, isLoading } = useAuth();
-
   const queryClient = useQueryClient();
-
   const router = useRouter();
 
   const dashboardHref = user ? dashboardRoutes[user.role] : '/';
@@ -46,10 +45,10 @@ export function Navbar() {
 
   const handleLogout = () => {
     clearAuthTokens();
-
     setUser(null);
-
     queryClient.removeQueries({ queryKey: ['user'] });
+
+    toast.success('Logged out successfully.');
 
     router.push('/');
   };
@@ -96,7 +95,6 @@ export function Navbar() {
                   <p className="font-medium">
                     {user.firstName} {user.lastName}
                   </p>
-
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
 
@@ -126,7 +124,7 @@ export function Navbar() {
 
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-destructive focus:text-destructive cursor-pointer"
+                  className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="size-4 shrink-0" />
                   <span>Logout</span>
@@ -190,7 +188,6 @@ export function Navbar() {
                   <p className="font-medium">
                     {user.firstName} {user.lastName}
                   </p>
-
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
 

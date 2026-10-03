@@ -1,29 +1,34 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGetMe } from '@/hooks/auth.hook';
 import AuthLoading from './auth-loading';
 
 export default function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   const { data, isLoading, isError } = useGetMe();
 
   const user = data?.data;
 
   useEffect(() => {
-    if (isLoading) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || isLoading) {
       return;
     }
 
     if (isError || !user) {
       router.replace('/login');
     }
-  }, [isLoading, isError, user, router]);
+  }, [mounted, isLoading, isError, user, router]);
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return <AuthLoading />;
   }
 

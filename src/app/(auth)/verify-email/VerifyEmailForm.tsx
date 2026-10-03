@@ -4,6 +4,7 @@ import { useForm } from '@tanstack/react-form';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Field,
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useVerifyEmail } from '@/hooks/auth.hook';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { setAuthTokens } from '@/lib/auth-storage';
 import { useAuth } from '@/providers/auth.provider';
 import { verifyEmailSchema } from '@/validation/auth.validation';
@@ -47,22 +49,28 @@ export default function VerifyEmailForm() {
           setAuthTokens(accessToken, refreshToken);
           setUser(user);
 
+          toast.success('Email verified successfully.', {
+            description: `Welcome to the University Management System, ${user.firstName}!`,
+          });
+
           if (user.role === 'STUDENT') {
             router.push('/student-dashboard');
             return;
           }
 
           if (user.role === 'INSTRUCTOR') {
-            router.push('/provider');
+            router.push('/instructor-dashboard');
+            return;
           }
 
           if (user.role === 'ADMIN') {
-            router.push('/admin');
+            router.push('/admin-dashboard');
             return;
           }
         },
+
         onError: error => {
-          console.error('Email verification failed:', error);
+          toast.error(getApiErrorMessage(error));
         },
       });
     },

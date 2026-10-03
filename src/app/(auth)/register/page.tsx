@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Field,
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useRegistration } from '@/hooks/auth.hook';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { registerSchema } from '@/validation/auth.validation';
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -43,14 +45,19 @@ export default function RegisterPage() {
     onSubmit: async ({ value }) => {
       registration(value, {
         onSuccess: response => {
+          toast.success('Account created successfully.', {
+            description: 'Please verify your email address to continue.',
+          });
+
           const params = new URLSearchParams({
             email: response.data.email,
           });
 
           router.push(`/verify-email?${params.toString()}`);
         },
+
         onError: error => {
-          console.error('Registration failed:', error);
+          toast.error(getApiErrorMessage(error));
         },
       });
     },
