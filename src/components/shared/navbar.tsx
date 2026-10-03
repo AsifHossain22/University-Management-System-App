@@ -150,7 +150,7 @@ export function Navbar() {
 
             <SheetContent className="pt-6 text-center">
               <SheetHeader>
-                <SheetTitle>University Management System</SheetTitle>
+                <SheetTitle>University MS</SheetTitle>
               </SheetHeader>
 
               <nav className="flex flex-col items-center gap-4 px-4">

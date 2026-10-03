@@ -1,10 +1,11 @@
-import RoleGuard from '@/components/auth/role-guard';
 import type { ReactNode } from 'react';
+import RoleGuard from '@/components/auth/role-guard';
+import DashboardShell from '@/components/dashboard/dashboard-shell';
 
 export default function StudentLayout({ children }: { children: ReactNode }) {
   return (
-    <>
-      <RoleGuard roles={['STUDENT']}>{children}</RoleGuard>
-    </>
+    <RoleGuard roles={['STUDENT']}>
+      <DashboardShell role="STUDENT">{children}</DashboardShell>
+    </RoleGuard>
   );
 }
