@@ -15,3 +15,14 @@ export function updateMyStudentProfile(payload: UpdateStudentProfilePayload) {
     body: payload,
   });
 }
+
+export function updateMyStudentProfilePhoto(file: File) {
+  const formData = new FormData();
+
+  formData.append('profilePhoto', file);
+
+  return apiClient<ApiResponse<StudentProfile>>('/students/profile/photo', {
+    method: 'PATCH',
+    body: formData,
+  });
+}

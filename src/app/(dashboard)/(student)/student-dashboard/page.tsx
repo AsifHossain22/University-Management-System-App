@@ -3,11 +3,11 @@
 import { Mail, MapPin, Phone, UserRound } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StudentProfileForm } from '@/components/dashboard/student-profile-form';
 import { useMyStudentProfile } from '@/hooks/student.hook';
 import { getApiErrorMessage } from '@/lib/api-error';
+import { StudentProfilePhoto } from '@/components/dashboard/student-profile-photo';
 
 export default function StudentDashboardPage() {
   const { data, isLoading, isError, error } = useMyStudentProfile();
@@ -35,11 +35,7 @@ export default function StudentDashboardPage() {
   }
 
   const student = data.data;
-
   const fullName = `${student.user.firstName} ${student.user.lastName}`;
-
-  const initials =
-    `${student.user.firstName.charAt(0)}${student.user.lastName.charAt(0)}`.toUpperCase();
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -65,14 +61,7 @@ export default function StudentDashboardPage() {
 
           <CardContent>
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-              <Avatar className="size-20">
-                <AvatarImage
-                  src={student.profileImageUrl ?? undefined}
-                  alt={fullName}
-                />
-
-                <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-              </Avatar>
+              <StudentProfilePhoto student={student} />
 
               <div className="space-y-1">
                 <h2 className="text-xl font-semibold">{fullName}</h2>
