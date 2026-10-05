@@ -16,14 +16,20 @@ import {
 } from '@/components/ui/sidebar';
 import type { SidebarItems } from '@/types/sidebar.type';
 import { studentRoutes } from '@/routes/student.routes';
+import { instructorRoutes } from '@/routes/instructor.routes';
 
-const sidebarRoutes: Partial<Record<'STUDENT', SidebarItems>> = {
+const sidebarRoutes: Partial<Record<'STUDENT' | 'INSTRUCTOR', SidebarItems>> = {
   STUDENT: studentRoutes,
+  INSTRUCTOR: instructorRoutes,
 };
 
-export function DashboardSidebar({ role }: { role: 'STUDENT' }) {
+export function DashboardSidebar({
+  userRole,
+}: {
+  userRole: 'STUDENT' | 'INSTRUCTOR';
+}) {
   const pathname = usePathname();
-  const routes = sidebarRoutes[role] ?? [];
+  const routes = sidebarRoutes[userRole] ?? [];
 
   return (
     <Sidebar>

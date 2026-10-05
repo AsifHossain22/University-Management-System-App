@@ -8,6 +8,10 @@ export const studentRoutes: SidebarItems = [
         title: 'Student Dashboard',
         url: '/student-dashboard',
       },
+      {
+        title: 'Course Registration',
+        url: '/student-dashboard/course-registration',
+      },
     ],
   },
 ];

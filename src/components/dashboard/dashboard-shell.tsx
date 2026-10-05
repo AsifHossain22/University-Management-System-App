@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Navbar } from '@/components/shared/navbar';
 import {
   SidebarInset,
   SidebarProvider,
@@ -8,20 +9,19 @@ import { DashboardSidebar } from './dashboard-sidebar';
 
 export default function DashboardShell({
   children,
-  role,
+  userRole,
 }: {
   children: ReactNode;
-  role: 'STUDENT';
+  userRole: 'STUDENT' | 'INSTRUCTOR';
 }) {
   return (
     <SidebarProvider>
-      <DashboardSidebar role={role} />
-
+      <DashboardSidebar userRole={userRole} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+        <Navbar />
+        <div className="flex h-12 items-center border-b px-4">
           <SidebarTrigger className="-ml-1" />
-        </header>
-
+        </div>
         {children}
       </SidebarInset>
     </SidebarProvider>

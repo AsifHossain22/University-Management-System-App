@@ -1,8 +1,6 @@
-'use client';
-
 import type { ReactNode } from 'react';
-
-import { Navbar } from '@/components/shared/navbar';
+import RoleGuard from '@/components/auth/role-guard';
+import DashboardShell from '@/components/dashboard/dashboard-shell';
 
 export default function StudentDashboardLayout({
   children,
@@ -10,9 +8,8 @@ export default function StudentDashboardLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1">{children}</main>
-    </div>
+    <RoleGuard roles={['STUDENT']}>
+      <DashboardShell userRole="STUDENT">{children}</DashboardShell>
+    </RoleGuard>
   );
 }
