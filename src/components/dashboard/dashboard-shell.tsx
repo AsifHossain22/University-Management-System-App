@@ -12,7 +12,7 @@ export default function DashboardShell({
   userRole,
 }: {
   children: ReactNode;
-  userRole: 'STUDENT' | 'INSTRUCTOR';
+  userRole: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
 }) {
   return (
     <SidebarProvider>

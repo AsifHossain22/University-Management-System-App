@@ -17,16 +17,20 @@ import {
 import type { SidebarItems } from '@/types/sidebar.type';
 import { studentRoutes } from '@/routes/student.routes';
 import { instructorRoutes } from '@/routes/instructor.routes';
+import { adminRoutes } from '@/routes/admin.routes';
 
-const sidebarRoutes: Partial<Record<'STUDENT' | 'INSTRUCTOR', SidebarItems>> = {
+const sidebarRoutes: Partial<
+  Record<'STUDENT' | 'INSTRUCTOR' | 'ADMIN', SidebarItems>
+> = {
   STUDENT: studentRoutes,
   INSTRUCTOR: instructorRoutes,
+  ADMIN: adminRoutes,
 };
 
 export function DashboardSidebar({
   userRole,
 }: {
-  userRole: 'STUDENT' | 'INSTRUCTOR';
+  userRole: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
 }) {
   const pathname = usePathname();
   const routes = sidebarRoutes[userRole] ?? [];
