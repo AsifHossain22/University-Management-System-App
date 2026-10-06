@@ -6,6 +6,8 @@ export type User = {
   role: UserRole;
   firstName: string;
   lastName: string;
+  profileImagePublicId: string | null;
+  profileImageUrl: string | null;
   isActive: boolean;
 };
 

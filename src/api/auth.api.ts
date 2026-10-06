@@ -62,6 +62,26 @@ export function getMe() {
   return apiClient<ApiResponse<User>>('/auth/me');
 }
 
+// UpdateMe
+export function updateMe(payload: { firstName?: string; lastName?: string }) {
+  return apiClient<ApiResponse<User>>('/auth/me', {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// UpdateMePhoto
+export function updateMePhoto(file: File) {
+  const formData = new FormData();
+
+  formData.append('profilePhoto', file);
+
+  return apiClient<ApiResponse<User>>('/auth/me/photo', {
+    method: 'PATCH',
+    body: formData,
+  });
+}
+
 // ForgotPassword
 export function forgotPassword(payload: ForgotPasswordPayload) {
   return apiClient<ApiResponse<{ email: string; message: string }>>(

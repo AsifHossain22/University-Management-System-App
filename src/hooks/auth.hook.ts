@@ -4,6 +4,8 @@ import {
   googleOAuth,
   refreshToken,
   resetPassword,
+  updateMe,
+  updateMePhoto,
   userLogin,
   userRegistration,
   verifyEmail,
@@ -68,5 +70,19 @@ export function useGetMe() {
     enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
+  });
+}
+
+// UpdateMe
+export function useUpdateMe() {
+  return useMutation({
+    mutationFn: updateMe,
+  });
+}
+
+// UpdateMePhoto
+export function useUpdateMePhoto() {
+  return useMutation({
+    mutationFn: updateMePhoto,
   });
 }

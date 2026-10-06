@@ -5,6 +5,10 @@ export const adminRoutes: SidebarItems = [
     title: 'Overview',
     items: [
       {
+        title: 'Profile',
+        url: '/admin-dashboard/profile',
+      },
+      {
         title: 'Admin Dashboard',
         url: '/admin-dashboard',
       },
