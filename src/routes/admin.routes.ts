@@ -20,6 +20,10 @@ export const adminRoutes: SidebarItems = [
         title: 'Programs',
         url: '/admin-dashboard/programs',
       },
+      {
+        title: 'Courses',
+        url: '/admin-dashboard/courses',
+      },
     ],
   },
 ];
