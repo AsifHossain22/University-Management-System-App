@@ -4,26 +4,12 @@ export const adminRoutes: SidebarItems = [
   {
     title: 'Overview',
     items: [
-      {
-        title: 'Profile',
-        url: '/admin-dashboard/profile',
-      },
-      {
-        title: 'Admin Dashboard',
-        url: '/admin-dashboard',
-      },
-      {
-        title: 'Departments',
-        url: '/admin-dashboard/departments',
-      },
-      {
-        title: 'Programs',
-        url: '/admin-dashboard/programs',
-      },
-      {
-        title: 'Courses',
-        url: '/admin-dashboard/courses',
-      },
+      { title: 'Admin Dashboard', url: '/admin-dashboard' },
+      { title: 'Departments', url: '/admin-dashboard/departments' },
+      { title: 'Programs', url: '/admin-dashboard/programs' },
+      { title: 'Courses', url: '/admin-dashboard/courses' },
+      { title: 'Semesters', url: '/admin-dashboard/semesters' },
+      { title: 'Profile', url: '/admin-dashboard/profile' },
     ],
   },
 ];
