@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
 import {
+  getInstructors,
   getMyInstructorProfile,
   updateMyInstructorProfile,
   updateMyInstructorProfilePhoto,
@@ -42,5 +42,16 @@ export function useUpdateMyInstructorProfilePhoto() {
         queryKey: ['instructor-profile'],
       });
     },
+  });
+}
+
+// GetAllInstructors
+export function useInstructors(searchTerm?: string) {
+  return useQuery({
+    queryKey: ['instructors', searchTerm],
+    queryFn: () => getInstructors(searchTerm),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 }

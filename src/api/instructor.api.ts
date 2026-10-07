@@ -5,10 +5,25 @@ import {
   UpdateInstructorProfilePayload,
 } from '@/types/instructor.type';
 
+export interface Instructor {
+  id: string;
+  instructorId: string;
+  instructorEmail: string;
+  specialization: string | null;
+  qualification: string | null;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+// GetMyInstructorProfile
 export function getMyInstructorProfile() {
   return apiClient<ApiResponse<InstructorProfile>>('/instructors/profile');
 }
 
+// UpdateMyInstructorProfile
 export function updateMyInstructorProfile(
   payload: UpdateInstructorProfilePayload,
 ) {
@@ -18,6 +33,7 @@ export function updateMyInstructorProfile(
   });
 }
 
+// UpdateMyInstructorProfilePhoto
 export function updateMyInstructorProfilePhoto(file: File) {
   const formData = new FormData();
 
@@ -30,4 +46,11 @@ export function updateMyInstructorProfilePhoto(file: File) {
       body: formData,
     },
   );
+}
+
+// GetAllInstructors
+export function getInstructors(searchTerm?: string) {
+  return apiClient<ApiResponse<Instructor[]>>('/instructors', {
+    query: searchTerm ? { searchTerm } : undefined,
+  });
 }

@@ -1,62 +1,52 @@
 import apiClient from '@/lib/apiClient';
 import type { ApiResponse } from '@/types/auth.type';
+import type {
+  CreateSectionPayload,
+  Section,
+  SectionMeta,
+  SectionQuery,
+  UpdateSectionPayload,
+} from '@/types/section.type';
 
-export interface SectionQuery {
-  searchTerm?: string;
-  courseId?: string;
-  semesterId?: string;
-  instructorId?: string;
-  isActive?: boolean;
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface Section {
-  id: string;
-  name: string;
-  code: string;
-  capacity: number;
-  course: {
-    id: string;
-    name: string;
-    code: string;
-    credits: number;
-  };
-  semester: {
-    id: string;
-    name: string;
-    code: string;
-  };
-  instructor: {
-    id: string;
-    instructorId: string;
-    user: {
-      firstName: string;
-      lastName: string;
-    };
-  } | null;
-}
-
-export interface SectionMeta {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface SectionListResponse {
-  meta: SectionMeta;
-  data: Section[];
-}
-
+// GetSections
 export function getSections(query?: SectionQuery) {
-  return apiClient<ApiResponse<SectionListResponse>>('/sections', {
+  return apiClient<
+    ApiResponse<{
+      data: Section[];
+      meta: SectionMeta;
+    }>
+  >('/sections', {
     query,
   });
 }
 
+// GetSectionById
 export function getSectionById(sectionId: string) {
   return apiClient<ApiResponse<Section>>(`/sections/${sectionId}`);
+}
+
+// CreateSection
+export function createSection(payload: CreateSectionPayload) {
+  return apiClient<ApiResponse<Section>>('/sections', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UpdateSection
+export function updateSection(
+  sectionId: string,
+  payload: UpdateSectionPayload,
+) {
+  return apiClient<ApiResponse<Section>>(`/sections/${sectionId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// DeleteSection
+export function deleteSection(sectionId: string) {
+  return apiClient<ApiResponse<Section>>(`/sections/${sectionId}`, {
+    method: 'DELETE',
+  });
 }
