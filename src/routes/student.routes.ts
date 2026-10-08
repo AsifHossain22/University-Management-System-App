@@ -16,6 +16,10 @@ export const studentRoutes: SidebarItems = [
         title: 'My Attendance',
         url: '/student-dashboard/attendance',
       },
+      {
+        title: 'My Results',
+        url: '/student-dashboard/results',
+      },
     ],
   },
 ];
