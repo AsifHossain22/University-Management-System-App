@@ -59,11 +59,47 @@ export interface AttendanceMeta {
   totalPages: number;
 }
 
+// InstructorAttendanceListResponse
 export interface AttendanceListResponse {
   data: Attendance[];
   meta: AttendanceMeta;
 }
 
+// StudentAttendance
+export interface StudentAttendance {
+  id: string;
+  date: string;
+  status: AttendanceStatus;
+  remarks: string | null;
+  markedAt: string;
+  createdAt: string;
+  registration: {
+    status: 'REGISTERED' | 'DROPPED' | 'COMPLETED' | 'CANCELLED';
+    section: {
+      id: string;
+      name: string;
+      code: string;
+      course: {
+        id: string;
+        name: string;
+        code: string;
+        credits: number;
+      };
+      semester: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  };
+}
+
+// StudentAttendanceApiResponse
+export type StudentAttendanceApiResponse = ApiResponse<StudentAttendance[]> & {
+  meta: AttendanceMeta;
+};
+
+// CreateAttendance - INSTRUCTOR
 export function createAttendance(payload: CreateAttendancePayload) {
   return apiClient<ApiResponse<Attendance>>('/attendances', {
     method: 'POST',
@@ -71,12 +107,14 @@ export function createAttendance(payload: CreateAttendancePayload) {
   });
 }
 
+// GetAttendances - INSTRUCTOR
 export function getAttendances(query?: AttendanceQuery) {
   return apiClient<ApiResponse<AttendanceListResponse>>('/attendances', {
     query,
   });
 }
 
+// UpdateAttendance - INSTRUCTOR
 export function updateAttendance(
   attendanceId: string,
   payload: UpdateAttendancePayload,
@@ -84,5 +122,12 @@ export function updateAttendance(
   return apiClient<ApiResponse<Attendance>>(`/attendances/${attendanceId}`, {
     method: 'PATCH',
     body: payload,
+  });
+}
+
+// GetMyAttendance - STUDENT
+export function getMyAttendance(query?: AttendanceQuery) {
+  return apiClient<StudentAttendanceApiResponse>('/attendances/my-attendance', {
+    query,
   });
 }
