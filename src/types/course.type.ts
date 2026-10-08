@@ -12,6 +12,36 @@ export interface Course {
   deletedAt: string | null;
 }
 
+export interface CoursePrerequisite {
+  id: string;
+  name: string;
+  code: string;
+  credits: number;
+  isActive: boolean;
+}
+
+export interface CoursePrerequisiteRelation {
+  id: string;
+  prerequisite: CoursePrerequisite;
+}
+
+export interface CourseDetail extends Course {
+  department: {
+    id: string;
+    name: string;
+    code: string;
+    isActive: boolean;
+  };
+  program: {
+    id: string;
+    name: string;
+    code: string;
+    departmentId: string;
+    isActive: boolean;
+  };
+  prerequisites: CoursePrerequisiteRelation[];
+}
+
 export interface CourseMeta {
   page: number;
   limit: number;

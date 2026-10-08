@@ -2,6 +2,7 @@ import apiClient from '@/lib/apiClient';
 import type { ApiResponse } from '@/types/auth.type';
 import type {
   Course,
+  CourseDetail,
   CourseMeta,
   CourseQuery,
   CreateCoursePayload,
@@ -17,7 +18,7 @@ export function getCourses(query?: CourseQuery) {
 
 // GetCourseById
 export function getCourseById(courseId: string) {
-  return apiClient<ApiResponse<Course>>(`/courses/${courseId}`);
+  return apiClient<ApiResponse<CourseDetail>>(`/courses/${courseId}`);
 }
 
 // CreateCourse

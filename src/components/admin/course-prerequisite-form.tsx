@@ -3,10 +3,7 @@
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import {
-  useCoursePrerequisitesByCourse,
-  useCreateCoursePrerequisite,
-} from '@/hooks/course-prerequisite.hook';
+import { useCreateCoursePrerequisite } from '@/hooks/course-prerequisite.hook';
 import { useCourses } from '@/hooks/course.hook';
 
 const coursePrerequisiteFormSchema = z
@@ -54,9 +51,8 @@ export default function CoursePrerequisiteForm({
           form.reset();
           onSuccess?.();
         },
-
-        onError: () => {
-          toast.error('Failed to add course prerequisite.');
+        onError: (error: { message?: string }) => {
+          toast.error(error.message || 'Failed to add course prerequisite.');
         },
       });
     },
@@ -96,7 +92,16 @@ export default function CoursePrerequisiteForm({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={event => field.handleChange(event.target.value)}
+                  onChange={event => {
+                    const selectedCourseId = event.target.value;
+                    field.handleChange(selectedCourseId);
+
+                    if (
+                      form.getFieldValue('prerequisiteId') === selectedCourseId
+                    ) {
+                      form.setFieldValue('prerequisiteId', '');
+                    }
+                  }}
                   disabled={
                     isCoursesLoading ||
                     createCoursePrerequisiteMutation.isPending
@@ -127,6 +132,7 @@ export default function CoursePrerequisiteForm({
 
         <form.Field name="prerequisiteId">
           {field => {
+            const selectedCourseId = form.getFieldValue('courseId');
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -155,11 +161,13 @@ export default function CoursePrerequisiteForm({
                       : 'Select prerequisite course'}
                   </option>
 
-                  {courses.map(course => (
-                    <option key={course.id} value={course.id}>
-                      {course.name} ({course.code})
-                    </option>
-                  ))}
+                  {courses
+                    .filter(course => course.id !== selectedCourseId)
+                    .map(course => (
+                      <option key={course.id} value={course.id}>
+                        {course.name} ({course.code})
+                      </option>
+                    ))}
                 </select>
 
                 {isInvalid && (
