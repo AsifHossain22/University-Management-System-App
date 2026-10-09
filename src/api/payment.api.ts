@@ -1,6 +1,8 @@
 import apiClient from '@/lib/apiClient';
 import type { ApiResponse } from '@/types/auth.type';
 
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
+
 export interface CreatePaymentPayload {
   feeId: string;
   amount: number;
@@ -12,10 +14,30 @@ export interface CreatePaymentResponse {
     feeId: string;
     amount: number;
     currency: string;
-    status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
+    status: PaymentStatus;
     merchantInvoiceNumber: string;
   };
   paymentUrl: string;
+}
+
+export interface StudentPayment {
+  id: string;
+  feeId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  status: PaymentStatus;
+  bkashTrxId: string | null;
+  merchantInvoiceNumber: string;
+  invoiceNumber: string | null;
+  invoiceUrl: string | null;
+  paidAt: string | null;
+  failedAt: string | null;
+  cancelledAt: string | null;
+  createdAt: string;
+  fee: {
+    title: string;
+  };
 }
 
 export function createPayment(payload: CreatePaymentPayload) {
@@ -23,4 +45,8 @@ export function createPayment(payload: CreatePaymentPayload) {
     method: 'POST',
     body: payload,
   });
+}
+
+export function getMyPayments() {
+  return apiClient<ApiResponse<StudentPayment[]>>('/payments/my-payments');
 }
