@@ -15,6 +15,10 @@ export const adminRoutes: SidebarItems = [
       },
       { title: 'Semesters', url: '/admin-dashboard/semesters' },
       { title: 'Fee Management', url: '/admin-dashboard/fees' },
+      {
+        title: 'Instructor Applications',
+        url: '/admin-dashboard/instructor-applications',
+      },
       { title: 'Profile', url: '/admin-dashboard/profile' },
     ],
   },
