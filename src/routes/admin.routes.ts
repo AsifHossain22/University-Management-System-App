@@ -14,6 +14,7 @@ export const adminRoutes: SidebarItems = [
         url: '/admin-dashboard/course-prerequisites',
       },
       { title: 'Semesters', url: '/admin-dashboard/semesters' },
+      { title: 'Fee Management', url: '/admin-dashboard/fees' },
       { title: 'Profile', url: '/admin-dashboard/profile' },
     ],
   },
