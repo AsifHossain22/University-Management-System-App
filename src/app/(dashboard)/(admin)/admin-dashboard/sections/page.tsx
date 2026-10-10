@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import SectionForm from '@/components/admin/section-form';
-import { useDeleteSection, useSections } from '@/hooks/section.hook';
+import {
+  useDeleteSection,
+  usePublishSectionGrades,
+  useSections,
+} from '@/hooks/section.hook';
 import { useCourses } from '@/hooks/course.hook';
 import { useSemesters } from '@/hooks/semester.hook';
 import type { Section } from '@/types/section.type';
@@ -16,6 +20,7 @@ export default function AdminSectionsPage() {
   const [editingSection, setEditingSection] = useState<Section | null>(null);
 
   const deleteSectionMutation = useDeleteSection();
+  const publishGradesMutation = usePublishSectionGrades();
 
   const searchTerm = searchParams.get('searchTerm') ?? '';
   const courseId = searchParams.get('courseId') ?? '';
@@ -94,6 +99,7 @@ export default function AdminSectionsPage() {
         params.delete('instructorId');
       }
     }
+
     params.set('page', '1');
     router.push(`/admin-dashboard/sections?${params.toString()}`);
   };
@@ -121,12 +127,37 @@ export default function AdminSectionsPage() {
     });
   };
 
+  const handlePublishGrades = (section: Section) => {
+    toast.warning(`Publish grades for "${section.name}"?`, {
+      description:
+        'This will calculate and publish grades for eligible students in this section. Make sure all exam results are complete.',
+      action: {
+        label: 'Publish Grades',
+        onClick: () => {
+          publishGradesMutation.mutate(section.id, {
+            onSuccess: response => {
+              toast.success(
+                response.message || 'Grades published successfully!',
+              );
+            },
+            onError: (error: Error) => {
+              toast.error('Failed to publish grades.', {
+                description:
+                  error.message || 'Please check the section and exam results.',
+              });
+            },
+          });
+        },
+      },
+    });
+  };
+
   return (
     <main className="space-y-6 p-4 md:p-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Sections</h1>
         <p className="text-muted-foreground">
-          Manage university course sections.
+          Manage university course sections and publish final grades.
         </p>
       </div>
 
@@ -153,7 +184,6 @@ export default function AdminSectionsPage() {
           className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">All Courses</option>
-
           {courses.map(course => (
             <option key={course.id} value={course.id}>
               {course.name} ({course.code})
@@ -171,7 +201,6 @@ export default function AdminSectionsPage() {
           className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">All Semesters</option>
-
           {semesters.map(semester => (
             <option key={semester.id} value={semester.id}>
               {semester.name} ({semester.code})
@@ -244,13 +273,26 @@ export default function AdminSectionsPage() {
                     </td>
 
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
                           onClick={() => setEditingSection(section)}
                           className="rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-muted"
                         >
                           Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handlePublishGrades(section)}
+                          disabled={
+                            !section.isActive || publishGradesMutation.isPending
+                          }
+                          className="rounded-md border border-primary px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {publishGradesMutation.isPending
+                            ? 'Publishing...'
+                            : 'Publish Grades'}
                         </button>
 
                         <button

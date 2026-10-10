@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   dropCourseRegistration,
   getMyCourseRegistrations,
+  getRegisteredStudentsBySection,
   registerCourse,
 } from '@/api/course-registration.api';
 import type {
@@ -10,6 +11,7 @@ import type {
 } from '@/api/course-registration.api';
 import { getAccessToken } from '@/lib/auth-storage';
 
+// GetMyCourseRegistrations
 export function useMyCourseRegistrations(query?: CourseRegistrationQuery) {
   return useQuery({
     queryKey: ['course-registrations', query],
@@ -20,6 +22,18 @@ export function useMyCourseRegistrations(query?: CourseRegistrationQuery) {
   });
 }
 
+// GetRegisteredStudentsBySection
+export function useRegisteredStudentsBySection(sectionId: string) {
+  return useQuery({
+    queryKey: ['section-registrations', sectionId],
+    queryFn: () => getRegisteredStudentsBySection(sectionId),
+    enabled: Boolean(getAccessToken()) && Boolean(sectionId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// RegisterCourse
 export function useRegisterCourse() {
   const queryClient = useQueryClient();
 
@@ -31,10 +45,15 @@ export function useRegisterCourse() {
       await queryClient.invalidateQueries({
         queryKey: ['course-registrations'],
       });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['section-registrations'],
+      });
     },
   });
 }
 
+// DropCourseRegistration
 export function useDropCourseRegistration() {
   const queryClient = useQueryClient();
 
@@ -44,6 +63,10 @@ export function useDropCourseRegistration() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ['course-registrations'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['section-registrations'],
       });
     },
   });

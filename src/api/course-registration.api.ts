@@ -51,6 +51,22 @@ export interface CourseRegistration {
   };
 }
 
+export interface RegisteredStudent {
+  id: string;
+  status: CourseRegistrationStatus;
+  registeredAt: string;
+  student: {
+    id: string;
+    studentId: string;
+    studentEmail: string;
+    user: {
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+  };
+}
+
 export interface CourseRegistrationMeta {
   page: number;
   limit: number;
@@ -85,5 +101,11 @@ export function dropCourseRegistration(registrationId: string) {
     {
       method: 'PATCH',
     },
+  );
+}
+
+export function getRegisteredStudentsBySection(sectionId: string) {
+  return apiClient<ApiResponse<RegisteredStudent[]>>(
+    `/course-registrations/sections/${sectionId}`,
   );
 }

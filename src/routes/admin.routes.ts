@@ -10,6 +10,14 @@ export const adminRoutes: SidebarItems = [
       { title: 'Courses', url: '/admin-dashboard/courses' },
       { title: 'Sections', url: '/admin-dashboard/sections' },
       {
+        title: 'Exam Management',
+        url: '/admin-dashboard/exams',
+      },
+      {
+        title: 'Results Management',
+        url: '/admin-dashboard/results',
+      },
+      {
         title: 'Course Prerequisites',
         url: '/admin-dashboard/course-prerequisites',
       },

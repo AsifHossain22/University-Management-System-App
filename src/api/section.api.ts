@@ -50,3 +50,13 @@ export function deleteSection(sectionId: string) {
     method: 'DELETE',
   });
 }
+
+// PublishSectionGrades
+export function publishSectionGrades(sectionId: string) {
+  return apiClient<ApiResponse<unknown>>(
+    `/course-grades/sections/${sectionId}/publish`,
+    {
+      method: 'POST',
+    },
+  );
+}

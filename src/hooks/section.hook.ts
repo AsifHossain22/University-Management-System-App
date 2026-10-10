@@ -4,6 +4,7 @@ import {
   deleteSection,
   getSectionById,
   getSections,
+  publishSectionGrades,
   updateSection,
 } from '@/api/section.api';
 import { getAccessToken } from '@/lib/auth-storage';
@@ -41,7 +42,6 @@ export function useCreateSection() {
 
   return useMutation({
     mutationFn: (payload: CreateSectionPayload) => createSection(payload),
-
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ['sections'],
@@ -86,6 +86,26 @@ export function useDeleteSection() {
       await queryClient.invalidateQueries({
         queryKey: ['sections'],
       });
+    },
+  });
+}
+
+// PublishSectionGrades
+export function usePublishSectionGrades() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: publishSectionGrades,
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['sections'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['student-transcript'],
+        }),
+      ]);
     },
   });
 }

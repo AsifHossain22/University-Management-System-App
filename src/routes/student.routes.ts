@@ -21,6 +21,10 @@ export const studentRoutes: SidebarItems = [
         url: '/student-dashboard/results',
       },
       {
+        title: 'My Transcript',
+        url: '/student-dashboard/transcript',
+      },
+      {
         title: 'My Fees',
         url: '/student-dashboard/fees',
       },

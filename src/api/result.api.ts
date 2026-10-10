@@ -73,14 +73,47 @@ export type StudentResultsResponse = ApiResponse<StudentResult[]> & {
   meta: ResultMeta;
 };
 
+export interface CreateResultPayload {
+  registrationId: string;
+  examId: string;
+  obtainedMarks: number;
+  remarks?: string;
+}
+
+export interface UpdateResultPayload {
+  obtainedMarks?: number;
+  remarks?: string;
+}
+
 // GetResults
 export function getResults(query?: ResultQuery) {
-  return apiClient<StudentResultsResponse>('/results', {
-    query,
-  });
+  return apiClient<StudentResultsResponse>('/results', { query });
 }
 
 // GetResultById
 export function getResultById(resultId: string) {
   return apiClient<ApiResponse<StudentResult>>(`/results/${resultId}`);
+}
+
+// CreateResult
+export function createResult(payload: CreateResultPayload) {
+  return apiClient<ApiResponse<StudentResult>>('/results', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UpdateResult
+export function updateResult(resultId: string, payload: UpdateResultPayload) {
+  return apiClient<ApiResponse<StudentResult>>(`/results/${resultId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// DeleteResult
+export function deleteResult(resultId: string) {
+  return apiClient<ApiResponse<null>>(`/results/${resultId}`, {
+    method: 'DELETE',
+  });
 }
