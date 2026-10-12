@@ -1,0 +1,3264 @@
+UNIVERSITY MANAGEMENT SYSTEM - API AUDIT
+
+
+========== FILE: src/api/attendance.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
+
+export interface AttendanceQuery {
+  page?: number;
+  limit?: number;
+  status?: AttendanceStatus;
+  date?: string;
+  searchTerm?: string;
+}
+
+export interface CreateAttendancePayload {
+  registrationId: string;
+  date: string;
+  status: AttendanceStatus;
+  remarks?: string;
+}
+
+export interface UpdateAttendancePayload {
+  status?: AttendanceStatus;
+  remarks?: string;
+}
+
+export interface Attendance {
+  id: string;
+  date: string;
+  status: AttendanceStatus;
+  remarks: string | null;
+  markedAt: string;
+  createdAt: string;
+  updatedAt?: string;
+  registration: {
+    student: {
+      studentId: string;
+      user: {
+        firstName: string;
+        lastName: string;
+        email: string;
+      };
+    };
+    section: {
+      id: string;
+      name: string;
+      code: string;
+      course: {
+        name: string;
+        code: string;
+      };
+    };
+  };
+}
+
+export interface AttendanceMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+// InstructorAttendanceListResponse
+export interface AttendanceListResponse {
+  data: Attendance[];
+  meta: AttendanceMeta;
+}
+
+// StudentAttendance
+export interface StudentAttendance {
+  id: string;
+  date: string;
+  status: AttendanceStatus;
+  remarks: string | null;
+  markedAt: string;
+  createdAt: string;
+  registration: {
+    status: 'REGISTERED' | 'DROPPED' | 'COMPLETED' | 'CANCELLED';
+    section: {
+      id: string;
+      name: string;
+      code: string;
+      course: {
+        id: string;
+        name: string;
+        code: string;
+        credits: number;
+      };
+      semester: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  };
+}
+
+// StudentAttendanceApiResponse
+export type StudentAttendanceApiResponse = ApiResponse<StudentAttendance[]> & {
+  meta: AttendanceMeta;
+};
+
+// CreateAttendance - INSTRUCTOR
+export function createAttendance(payload: CreateAttendancePayload) {
+  return apiClient<ApiResponse<Attendance>>('/attendances', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// GetAttendances - INSTRUCTOR
+export function getAttendances(query?: AttendanceQuery) {
+  return apiClient<ApiResponse<AttendanceListResponse>>('/attendances', {
+    query,
+  });
+}
+
+// UpdateAttendance - INSTRUCTOR
+export function updateAttendance(
+  attendanceId: string,
+  payload: UpdateAttendancePayload,
+) {
+  return apiClient<ApiResponse<Attendance>>(`/attendances/${attendanceId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// GetMyAttendance - STUDENT
+export function getMyAttendance(query?: AttendanceQuery) {
+  return apiClient<StudentAttendanceApiResponse>('/attendances/my-attendance', {
+    query,
+  });
+}
+
+========== FILE: src/api/auth.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type {
+  ApiResponse,
+  AuthResponse,
+  ForgotPasswordPayload,
+  GoogleLoginPayload,
+  LoginPayload,
+  RefreshTokenPayload,
+  RefreshTokenResponse,
+  RegisterPayload,
+  ResetPasswordPayload,
+  User,
+  VerifyEmailPayload,
+  VerifyEmailResponse,
+} from '@/types/auth.type';
+
+// UserRegistration
+export function userRegistration(payload: RegisterPayload) {
+  return apiClient<ApiResponse<{ email: string; message: string }>>(
+    '/auth/register',
+    {
+      method: 'POST',
+      body: payload,
+    },
+  );
+}
+
+// VerifyEmail
+export function verifyEmail(payload: VerifyEmailPayload) {
+  return apiClient<ApiResponse<VerifyEmailResponse>>('/auth/verify-email', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UserLogin
+export function userLogin(payload: LoginPayload) {
+  return apiClient<ApiResponse<AuthResponse>>('/auth/login', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// RefreshToken
+export function refreshToken(payload: RefreshTokenPayload) {
+  return apiClient<ApiResponse<RefreshTokenResponse>>('/auth/refresh-token', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// GoogleOAuth
+export function googleOAuth(payload: GoogleLoginPayload) {
+  return apiClient<ApiResponse<AuthResponse>>('/auth/google', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// GetMe
+export function getMe() {
+  return apiClient<ApiResponse<User>>('/auth/me');
+}
+
+// UpdateMe
+export function updateMe(payload: { firstName?: string; lastName?: string }) {
+  return apiClient<ApiResponse<User>>('/auth/me', {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// UpdateMePhoto
+export function updateMePhoto(file: File) {
+  const formData = new FormData();
+
+  formData.append('profilePhoto', file);
+
+  return apiClient<ApiResponse<User>>('/auth/me/photo', {
+    method: 'PATCH',
+    body: formData,
+  });
+}
+
+// ForgotPassword
+export function forgotPassword(payload: ForgotPasswordPayload) {
+  return apiClient<ApiResponse<{ email: string; message: string }>>(
+    '/auth/forgot-password',
+    {
+      method: 'POST',
+      body: payload,
+    },
+  );
+}
+
+// ResetPassword
+export function resetPassword(payload: ResetPasswordPayload) {
+  return apiClient<ApiResponse<{ email: string; message: string }>>(
+    '/auth/reset-password',
+    {
+      method: 'POST',
+      body: payload,
+    },
+  );
+}
+
+========== FILE: src/api/course.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  Course,
+  CourseDetail,
+  CourseMeta,
+  CourseQuery,
+  CreateCoursePayload,
+  UpdateCoursePayload,
+} from '@/types/course.type';
+
+// GetCourses
+export function getCourses(query?: CourseQuery) {
+  return apiClient<ApiResponse<Course[]> & { meta: CourseMeta }>('/courses', {
+    query,
+  });
+}
+
+// GetCourseById
+export function getCourseById(courseId: string) {
+  return apiClient<ApiResponse<CourseDetail>>(`/courses/${courseId}`);
+}
+
+// CreateCourse
+export function createCourse(payload: CreateCoursePayload) {
+  return apiClient<ApiResponse<Course>>('/courses', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UpdateCourse
+export function updateCourse(courseId: string, payload: UpdateCoursePayload) {
+  return apiClient<ApiResponse<Course>>(`/courses/${courseId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// DeleteCourse
+export function deleteCourse(courseId: string) {
+  return apiClient<ApiResponse<Course>>(`/courses/${courseId}`, {
+    method: 'DELETE',
+  });
+}
+
+========== FILE: src/api/course-prerequisite.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  CoursePrerequisite,
+  CoursePrerequisiteMeta,
+  CoursePrerequisiteQuery,
+  CreateCoursePrerequisitePayload,
+} from '@/types/course-prerequisite.type';
+
+// GetCoursePrerequisites
+export function getCoursePrerequisites(query?: CoursePrerequisiteQuery) {
+  return apiClient<
+    ApiResponse<{
+      data: CoursePrerequisite[];
+      meta: CoursePrerequisiteMeta;
+    }>
+  >('/course-prerequisites', {
+    query,
+  });
+}
+
+// GetCoursePrerequisitesByCourse
+export function getCoursePrerequisitesByCourse(courseId: string) {
+  return apiClient<ApiResponse<CoursePrerequisite[]>>(
+    `/course-prerequisites/course/${courseId}`,
+  );
+}
+
+// CreateCoursePrerequisite
+export function createCoursePrerequisite(
+  payload: CreateCoursePrerequisitePayload,
+) {
+  return apiClient<ApiResponse<CoursePrerequisite>>('/course-prerequisites', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// DeleteCoursePrerequisite
+export function deleteCoursePrerequisite(coursePrerequisiteId: string) {
+  return apiClient<ApiResponse<CoursePrerequisite>>(
+    `/course-prerequisites/${coursePrerequisiteId}`,
+    {
+      method: 'DELETE',
+    },
+  );
+}
+
+========== FILE: src/api/course-registration.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+export type CourseRegistrationStatus =
+  | 'REGISTERED'
+  | 'DROPPED'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export interface CourseRegistrationQuery {
+  page?: number;
+  limit?: number;
+  status?: CourseRegistrationStatus;
+  searchTerm?: string;
+}
+
+export interface CreateCourseRegistrationPayload {
+  sectionId: string;
+}
+
+export interface CourseRegistration {
+  id: string;
+  status: CourseRegistrationStatus;
+  registeredAt: string;
+  droppedAt: string | null;
+  section: {
+    id: string;
+    name: string;
+    code: string;
+    capacity: number;
+    course: {
+      id: string;
+      name: string;
+      code: string;
+      credits: number;
+    };
+    semester: {
+      id: string;
+      name: string;
+      code: string;
+      startDate: string;
+      endDate: string;
+    };
+    instructor: {
+      instructorId: string;
+      user: {
+        firstName: string;
+        lastName: string;
+      };
+    } | null;
+  };
+}
+
+export interface RegisteredStudent {
+  id: string;
+  status: CourseRegistrationStatus;
+  registeredAt: string;
+  student: {
+    id: string;
+    studentId: string;
+    studentEmail: string;
+    user: {
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+  };
+}
+
+export interface CourseRegistrationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface CourseRegistrationListResponse {
+  meta: CourseRegistrationMeta;
+  data: CourseRegistration[];
+}
+
+export function getMyCourseRegistrations(query?: CourseRegistrationQuery) {
+  return apiClient<ApiResponse<CourseRegistrationListResponse>>(
+    '/course-registrations',
+    {
+      query,
+    },
+  );
+}
+
+export function registerCourse(payload: CreateCourseRegistrationPayload) {
+  return apiClient<ApiResponse<CourseRegistration>>('/course-registrations', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+export function dropCourseRegistration(registrationId: string) {
+  return apiClient<ApiResponse<CourseRegistration>>(
+    `/course-registrations/${registrationId}/drop`,
+    {
+      method: 'PATCH',
+    },
+  );
+}
+
+export function getRegisteredStudentsBySection(sectionId: string) {
+  return apiClient<ApiResponse<RegisteredStudent[]>>(
+    `/course-registrations/sections/${sectionId}`,
+  );
+}
+
+========== FILE: src/api/department.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  CreateDepartmentPayload,
+  Department,
+  DepartmentMeta,
+  DepartmentQuery,
+  UpdateDepartmentPayload,
+} from '@/types/department.type';
+
+export function getDepartments(query?: DepartmentQuery) {
+  return apiClient<
+    ApiResponse<Department[]> & {
+      meta: DepartmentMeta;
+    }
+  >('/departments', {
+    query,
+  });
+}
+
+export function getDepartmentById(departmentId: string) {
+  return apiClient<ApiResponse<Department>>(`/departments/${departmentId}`);
+}
+
+export function createDepartment(payload: CreateDepartmentPayload) {
+  return apiClient<ApiResponse<Department>>('/departments', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+export function updateDepartment(
+  departmentId: string,
+  payload: UpdateDepartmentPayload,
+) {
+  return apiClient<ApiResponse<Department>>(`/departments/${departmentId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+export function deleteDepartment(departmentId: string) {
+  return apiClient<ApiResponse<Department>>(`/departments/${departmentId}`, {
+    method: 'DELETE',
+  });
+}
+
+========== FILE: src/api/exam.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  CreateExamPayload,
+  Exam,
+  ExamListResponse,
+  ExamQuery,
+  UpdateExamPayload,
+} from '@/types/exam.type';
+
+// GetExams
+export function getExams(query?: ExamQuery) {
+  return apiClient<ExamListResponse>('/exams', {
+    query,
+  });
+}
+
+// GetExamById
+export function getExamById(examId: string) {
+  return apiClient<ApiResponse<Exam>>(`/exams/${examId}`);
+}
+
+// CreateExam
+export function createExam(payload: CreateExamPayload) {
+  return apiClient<ApiResponse<Exam>>('/exams', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UpdateExam
+export function updateExam(examId: string, payload: UpdateExamPayload) {
+  return apiClient<ApiResponse<Exam>>(`/exams/${examId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// DeleteExam
+export function deleteExam(examId: string) {
+  return apiClient<ApiResponse<Exam>>(`/exams/${examId}`, {
+    method: 'DELETE',
+  });
+}
+
+========== FILE: src/api/fee.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+export type FeeStatus =
+  | 'UNPAID'
+  | 'PARTIALLY_PAID'
+  | 'PAID'
+  | 'OVERDUE'
+  | 'CANCELLED';
+
+export interface StudentFee {
+  id: string;
+  title: string;
+  description: string | null;
+  amount: number;
+  dueDate: string;
+  status: FeeStatus;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  totalPaid: number;
+  outstandingAmount: number;
+  payments: {
+    id: string;
+    amount: number;
+    paidAt: string | null;
+    bkashTrxId: string | null;
+  }[];
+}
+
+export interface AdminFee {
+  id: string;
+  studentId: string;
+  title: string;
+  description: string | null;
+  amount: number;
+  dueDate: string;
+  status: FeeStatus;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  student: {
+    studentId: string;
+    studentEmail: string;
+    user: {
+      firstName: string;
+      lastName: string;
+    };
+  };
+}
+
+export interface FeeQuery {
+  page?: number;
+  limit?: number;
+  studentId?: string;
+  status?: FeeStatus;
+  searchTerm?: string;
+  sortBy?: 'title' | 'amount' | 'dueDate' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface PaginatedFees {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: StudentFee[];
+}
+
+export interface PaginatedAdminFees {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: AdminFee[];
+}
+
+export interface CreateFeePayload {
+  title: string;
+  description?: string;
+  amount: number;
+  dueDate: string;
+  studentId: string;
+}
+
+export interface UpdateFeePayload {
+  title?: string;
+  description?: string;
+  amount?: number;
+  dueDate?: string;
+  status?: FeeStatus;
+  isActive?: boolean;
+}
+
+// Student - GetMyFees
+export function getMyFees(query: FeeQuery = {}) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== '') {
+      params.set(key, String(value));
+    }
+  }
+
+  const search = params.toString();
+
+  return apiClient<ApiResponse<PaginatedFees>>(
+    `/fees/my-fees${search ? `?${search}` : ''}`,
+  );
+}
+
+// Admin - GetAllFees
+export function getAllFees(query: FeeQuery = {}) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== '') {
+      params.set(key, String(value));
+    }
+  }
+
+  const search = params.toString();
+
+  return apiClient<ApiResponse<PaginatedAdminFees>>(
+    `/fees${search ? `?${search}` : ''}`,
+  );
+}
+
+// Admin - CreateFee
+export function createFee(payload: CreateFeePayload) {
+  return apiClient<ApiResponse<AdminFee>>('/fees', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// Admin - UpdateFee
+export function updateFee(feeId: string, payload: UpdateFeePayload) {
+  return apiClient<ApiResponse<AdminFee>>(`/fees/${feeId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// Admin - SoftDeleteFee
+export function deleteFee(feeId: string) {
+  return apiClient<ApiResponse<null>>(`/fees/${feeId}`, {
+    method: 'DELETE',
+  });
+}
+
+========== FILE: src/api/instructor.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import {
+  InstructorProfile,
+  UpdateInstructorProfilePayload,
+} from '@/types/instructor.type';
+
+export interface Instructor {
+  id: string;
+  instructorId: string;
+  instructorEmail: string;
+  specialization: string | null;
+  qualification: string | null;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+// GetMyInstructorProfile
+export function getMyInstructorProfile() {
+  return apiClient<ApiResponse<InstructorProfile>>('/instructors/profile');
+}
+
+// UpdateMyInstructorProfile
+export function updateMyInstructorProfile(
+  payload: UpdateInstructorProfilePayload,
+) {
+  return apiClient<ApiResponse<InstructorProfile>>('/instructors/profile', {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// UpdateMyInstructorProfilePhoto
+export function updateMyInstructorProfilePhoto(file: File) {
+  const formData = new FormData();
+
+  formData.append('profilePhoto', file);
+
+  return apiClient<ApiResponse<InstructorProfile>>(
+    '/instructors/profile/photo',
+    {
+      method: 'PATCH',
+      body: formData,
+    },
+  );
+}
+
+// GetAllInstructors
+export function getInstructors(searchTerm?: string) {
+  return apiClient<ApiResponse<Instructor[]>>('/instructors', {
+    query: searchTerm ? { searchTerm } : undefined,
+  });
+}
+
+========== FILE: src/api/instructor-application.admin.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+export type InstructorApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface InstructorApplication {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  specialization: string;
+  qualification: string;
+  experienceYears: number;
+  bio: string | null;
+  departmentId: string | null;
+  profilePhotoUrl: string | null;
+  cvUrl: string | null;
+  supportingDocuments: unknown;
+  emailVerifiedAt: string | null;
+  status: InstructorApplicationStatus;
+  rejectionReason: string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  userId: string | null;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InstructorApplicationListResponse {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: InstructorApplication[];
+}
+
+export interface InstructorApplicationQuery {
+  page?: number;
+  limit?: number;
+  status?: InstructorApplicationStatus;
+  searchTerm?: string;
+}
+
+export interface ReviewInstructorApplicationPayload {
+  status: 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+}
+
+export interface ReviewInstructorApplicationResponse {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+    firstName: string;
+    lastName: string;
+  };
+  instructorProfile?: {
+    id: string;
+    userId: string;
+    instructorId: string;
+    instructorEmail: string;
+  };
+  application: InstructorApplication;
+}
+
+export function getInstructorApplications(
+  query: InstructorApplicationQuery = {},
+) {
+  return apiClient<ApiResponse<InstructorApplicationListResponse>>(
+    '/instructor-applications',
+    {
+      method: 'GET',
+      query,
+    },
+  );
+}
+
+export function reviewInstructorApplication(
+  applicationId: string,
+  payload: ReviewInstructorApplicationPayload,
+) {
+  return apiClient<ApiResponse<ReviewInstructorApplicationResponse>>(
+    `/instructor-applications/${applicationId}/review`,
+    {
+      method: 'PATCH',
+      body: payload,
+    },
+  );
+}
+
+========== FILE: src/api/instructor-application.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  ApplyAsInstructorPayload,
+  ApplyAsInstructorResponse,
+  VerifyInstructorEmailPayload,
+  VerifyInstructorEmailResponse,
+} from '@/types/instructor-application.type';
+
+export function applyAsInstructor(payload: ApplyAsInstructorPayload) {
+  const formData = new FormData();
+
+  formData.append('firstName', payload.firstName);
+  formData.append('lastName', payload.lastName);
+  formData.append('email', payload.email);
+  formData.append('password', payload.password);
+  formData.append('specialization', payload.specialization);
+  formData.append('qualification', payload.qualification);
+  formData.append('experienceYears', String(payload.experienceYears));
+
+  if (payload.bio) {
+    formData.append('bio', payload.bio);
+  }
+
+  if (payload.departmentId) {
+    formData.append('departmentId', payload.departmentId);
+  }
+
+  if (payload.profilePhoto) {
+    formData.append('profilePhoto', payload.profilePhoto);
+  }
+
+  if (payload.cv) {
+    formData.append('cv', payload.cv);
+  }
+
+  payload.supportingDocuments?.forEach(file => {
+    formData.append('supportingDocuments', file);
+  });
+
+  return apiClient<ApiResponse<ApplyAsInstructorResponse>>(
+    '/instructor-applications/apply',
+    {
+      method: 'POST',
+      body: formData,
+    },
+  );
+}
+
+export function verifyInstructorEmail(payload: VerifyInstructorEmailPayload) {
+  return apiClient<ApiResponse<VerifyInstructorEmailResponse>>(
+    '/instructor-applications/verify-email',
+    {
+      method: 'POST',
+      body: payload,
+    },
+  );
+}
+
+========== FILE: src/api/payment.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
+
+export interface CreatePaymentPayload {
+  feeId: string;
+  amount: number;
+}
+
+export interface CreatePaymentResponse {
+  payment: {
+    id: string;
+    feeId: string;
+    amount: number;
+    currency: string;
+    status: PaymentStatus;
+    merchantInvoiceNumber: string;
+  };
+  paymentUrl: string;
+}
+
+export interface StudentPayment {
+  id: string;
+  feeId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  status: PaymentStatus;
+  bkashTrxId: string | null;
+  merchantInvoiceNumber: string;
+  invoiceNumber: string | null;
+  invoiceUrl: string | null;
+  paidAt: string | null;
+  failedAt: string | null;
+  cancelledAt: string | null;
+  createdAt: string;
+  fee: {
+    title: string;
+  };
+}
+
+export function createPayment(payload: CreatePaymentPayload) {
+  return apiClient<ApiResponse<CreatePaymentResponse>>('/payments', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+export function getMyPayments() {
+  return apiClient<ApiResponse<StudentPayment[]>>('/payments/my-payments');
+}
+
+========== FILE: src/api/program.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  CreateProgramPayload,
+  Program,
+  ProgramMeta,
+  ProgramQuery,
+  UpdateProgramPayload,
+} from '@/types/program.type';
+
+export function getPrograms(query?: ProgramQuery) {
+  return apiClient<
+    ApiResponse<Program[]> & {
+      meta: ProgramMeta;
+    }
+  >('/programs', {
+    query,
+  });
+}
+
+export function getProgramById(programId: string) {
+  return apiClient<ApiResponse<Program>>(`/programs/${programId}`);
+}
+
+export function createProgram(payload: CreateProgramPayload) {
+  return apiClient<ApiResponse<Program>>('/programs', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+export function updateProgram(
+  programId: string,
+  payload: UpdateProgramPayload,
+) {
+  return apiClient<ApiResponse<Program>>(`/programs/${programId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+export function deleteProgram(programId: string) {
+  return apiClient<ApiResponse<Program>>(`/programs/${programId}`, {
+    method: 'DELETE',
+  });
+}
+
+========== FILE: src/api/result.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+export type ExamType =
+  | 'QUIZ'
+  | 'MIDTERM'
+  | 'FINAL'
+  | 'ASSIGNMENT'
+  | 'PRESENTATION'
+  | 'PROJECT'
+  | 'LAB'
+  | 'OTHER';
+
+export interface ResultQuery {
+  searchTerm?: string;
+  registrationId?: string;
+  examId?: string;
+  studentId?: string;
+  sectionId?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: 'obtainedMarks' | 'createdAt' | 'updatedAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ResultMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface StudentResult {
+  id: string;
+  obtainedMarks: number;
+  remarks: string | null;
+  createdAt: string;
+  updatedAt: string;
+  exam: {
+    id: string;
+    title: string;
+    type: ExamType;
+    examDate: string;
+    totalMarks: number;
+    weight: number;
+    section: {
+      id: string;
+      name: string;
+      code: string;
+      course: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  };
+  registration: {
+    id: string;
+    status: string;
+    student: {
+      id: string;
+      studentId: string;
+      studentEmail: string;
+      user: {
+        firstName: string;
+        lastName: string;
+      };
+    };
+  };
+}
+
+export type StudentResultsResponse = ApiResponse<StudentResult[]> & {
+  meta: ResultMeta;
+};
+
+export interface CreateResultPayload {
+  registrationId: string;
+  examId: string;
+  obtainedMarks: number;
+  remarks?: string;
+}
+
+export interface UpdateResultPayload {
+  obtainedMarks?: number;
+  remarks?: string;
+}
+
+// GetResults
+export function getResults(query?: ResultQuery) {
+  return apiClient<StudentResultsResponse>('/results', { query });
+}
+
+// GetResultById
+export function getResultById(resultId: string) {
+  return apiClient<ApiResponse<StudentResult>>(`/results/${resultId}`);
+}
+
+// CreateResult
+export function createResult(payload: CreateResultPayload) {
+  return apiClient<ApiResponse<StudentResult>>('/results', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UpdateResult
+export function updateResult(resultId: string, payload: UpdateResultPayload) {
+  return apiClient<ApiResponse<StudentResult>>(`/results/${resultId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// DeleteResult
+export function deleteResult(resultId: string) {
+  return apiClient<ApiResponse<null>>(`/results/${resultId}`, {
+    method: 'DELETE',
+  });
+}
+
+========== FILE: src/api/section.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  CreateSectionPayload,
+  Section,
+  SectionMeta,
+  SectionQuery,
+  UpdateSectionPayload,
+} from '@/types/section.type';
+
+// GetSections
+export function getSections(query?: SectionQuery) {
+  return apiClient<
+    ApiResponse<{
+      data: Section[];
+      meta: SectionMeta;
+    }>
+  >('/sections', {
+    query,
+  });
+}
+
+// GetSectionById
+export function getSectionById(sectionId: string) {
+  return apiClient<ApiResponse<Section>>(`/sections/${sectionId}`);
+}
+
+// CreateSection
+export function createSection(payload: CreateSectionPayload) {
+  return apiClient<ApiResponse<Section>>('/sections', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UpdateSection
+export function updateSection(
+  sectionId: string,
+  payload: UpdateSectionPayload,
+) {
+  return apiClient<ApiResponse<Section>>(`/sections/${sectionId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// DeleteSection
+export function deleteSection(sectionId: string) {
+  return apiClient<ApiResponse<Section>>(`/sections/${sectionId}`, {
+    method: 'DELETE',
+  });
+}
+
+// PublishSectionGrades
+export function publishSectionGrades(sectionId: string) {
+  return apiClient<ApiResponse<unknown>>(
+    `/course-grades/sections/${sectionId}/publish`,
+    {
+      method: 'POST',
+    },
+  );
+}
+
+========== FILE: src/api/semester.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+import type {
+  CreateSemesterPayload,
+  Semester,
+  SemesterMeta,
+  SemesterQuery,
+  UpdateSemesterPayload,
+} from '@/types/semester.type';
+
+// GetSemesters
+export function getSemesters(query?: SemesterQuery) {
+  return apiClient<
+    ApiResponse<{
+      data: Semester[];
+      meta: SemesterMeta;
+    }>
+  >('/semesters', {
+    query,
+  });
+}
+
+// GetSemesterById
+export function getSemesterById(semesterId: string) {
+  return apiClient<ApiResponse<Semester>>(`/semesters/${semesterId}`);
+}
+
+// CreateSemester
+export function createSemester(payload: CreateSemesterPayload) {
+  return apiClient<ApiResponse<Semester>>('/semesters', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+// UpdateSemester
+export function updateSemester(
+  semesterId: string,
+  payload: UpdateSemesterPayload,
+) {
+  return apiClient<ApiResponse<Semester>>(`/semesters/${semesterId}`, {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+// DeleteSemester
+export function deleteSemester(semesterId: string) {
+  return apiClient<ApiResponse<Semester>>(`/semesters/${semesterId}`, {
+    method: 'DELETE',
+  });
+}
+
+========== FILE: src/api/student.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+import type {
+  StudentProfile,
+  UpdateStudentProfilePayload,
+} from '@/types/student.type';
+
+export function getMyStudentProfile() {
+  return apiClient<ApiResponse<StudentProfile>>('/students/profile');
+}
+
+export function updateMyStudentProfile(payload: UpdateStudentProfilePayload) {
+  return apiClient<ApiResponse<StudentProfile>>('/students/profile', {
+    method: 'PATCH',
+    body: payload,
+  });
+}
+
+export function updateMyStudentProfilePhoto(file: File) {
+  const formData = new FormData();
+
+  formData.append('profilePhoto', file);
+
+  return apiClient<ApiResponse<StudentProfile>>('/students/profile/photo', {
+    method: 'PATCH',
+    body: formData,
+  });
+}
+
+========== FILE: src/api/transcript.api.ts ==========
+import apiClient from '@/lib/apiClient';
+import type { ApiResponse } from '@/types/auth.type';
+
+export interface TranscriptCourseGrade {
+  id: string;
+  finalMarks: number;
+  grade: string;
+  gradePoint: number;
+  isPassed: boolean;
+  publishedAt: string;
+  course: {
+    id: string;
+    name: string;
+    code: string;
+    credits: number;
+  };
+  section: {
+    id: string;
+    name: string;
+    code: string;
+  };
+  semester: {
+    id: string;
+    name: string;
+    code: string;
+  };
+}
+
+export interface SemesterTranscript {
+  semester: {
+    id: string;
+    name: string;
+    code: string;
+  };
+  semesterGPA: number;
+  creditsEarned: number;
+  courses: TranscriptCourseGrade[];
+}
+
+export interface StudentTranscript {
+  student: {
+    studentId: string;
+    firstName: string;
+    lastName: string;
+  };
+  semesters: SemesterTranscript[];
+  cumulativeGPA: number;
+  totalCreditsEarned: number;
+}
+
+export type StudentTranscriptResponse = ApiResponse<StudentTranscript>;
+
+// GetMyTranscript
+export function getMyTranscript() {
+  return apiClient<StudentTranscriptResponse>('/course-grades/my-transcript');
+}
+
+========== FILE: src/hooks/attendance.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createAttendance,
+  getAttendances,
+  getMyAttendance,
+  updateAttendance,
+  type AttendanceQuery,
+  type CreateAttendancePayload,
+  type UpdateAttendancePayload,
+} from '@/api/attendance.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+// GetAttendances - INSTRUCTOR
+export function useAttendances(query?: AttendanceQuery) {
+  return useQuery({
+    queryKey: ['attendances', query],
+    queryFn: () => getAttendances(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetMyAttendance - STUDENT
+export function useMyAttendance(query?: AttendanceQuery) {
+  return useQuery({
+    queryKey: ['my-attendance', query],
+    queryFn: () => getMyAttendance(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// CreateAttendance - INSTRUCTOR
+export function useCreateAttendance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateAttendancePayload) => createAttendance(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['attendances'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['my-attendance'],
+      });
+    },
+  });
+}
+
+// UpdateAttendance - INSTRUCTOR
+export function useUpdateAttendance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      attendanceId,
+      payload,
+    }: {
+      attendanceId: string;
+      payload: UpdateAttendancePayload;
+    }) => updateAttendance(attendanceId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['attendances'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['my-attendance'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/auth.hook.ts ==========
+import {
+  forgotPassword,
+  getMe,
+  googleOAuth,
+  refreshToken,
+  resetPassword,
+  updateMe,
+  updateMePhoto,
+  userLogin,
+  userRegistration,
+  verifyEmail,
+} from '@/api/auth.api';
+import { getAccessToken } from '@/lib/auth-storage';
+import { useMutation, useQuery } from '@tanstack/react-query';
+
+// UserRegistration
+export function useRegistration() {
+  return useMutation({
+    mutationFn: userRegistration,
+  });
+}
+
+// VerifyEmail
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: verifyEmail,
+  });
+}
+
+// UserLogin
+export function useLogin() {
+  return useMutation({
+    mutationFn: userLogin,
+  });
+}
+
+// RefreshToken
+export function useRefreshToken() {
+  return useMutation({
+    mutationFn: refreshToken,
+  });
+}
+
+// GoogleOAuth
+export function useGoogleOAuth() {
+  return useMutation({
+    mutationFn: googleOAuth,
+  });
+}
+
+// ForgotPassword
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: forgotPassword,
+  });
+}
+
+// ResetPassword
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: resetPassword,
+  });
+}
+
+// GetMe
+export function useGetMe() {
+  return useQuery({
+    queryKey: ['user'],
+    queryFn: getMe,
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// UpdateMe
+export function useUpdateMe() {
+  return useMutation({
+    mutationFn: updateMe,
+  });
+}
+
+// UpdateMePhoto
+export function useUpdateMePhoto() {
+  return useMutation({
+    mutationFn: updateMePhoto,
+  });
+}
+
+========== FILE: src/hooks/course.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createCourse,
+  deleteCourse,
+  getCourseById,
+  getCourses,
+  updateCourse,
+} from '@/api/course.api';
+import { getAccessToken } from '@/lib/auth-storage';
+import type {
+  CourseQuery,
+  CreateCoursePayload,
+  UpdateCoursePayload,
+} from '@/types/course.type';
+
+// GetCourses
+export function useCourses(query?: CourseQuery) {
+  return useQuery({
+    queryKey: ['courses', query],
+    queryFn: () => getCourses(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetCourseById
+export function useCourseById(courseId: string) {
+  return useQuery({
+    queryKey: ['course', courseId],
+    queryFn: () => getCourseById(courseId),
+    enabled: Boolean(getAccessToken()) && Boolean(courseId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// CreateCourse
+export function useCreateCourse() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateCoursePayload) => createCourse(payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['courses'],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ['courses'],
+      });
+    },
+  });
+}
+
+// UpdateCourse
+export function useUpdateCourse() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      payload,
+    }: {
+      courseId: string;
+      payload: UpdateCoursePayload;
+    }) => updateCourse(courseId, payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['courses'],
+      });
+    },
+  });
+}
+
+// DeleteCourse
+export function useDeleteCourse() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteCourse,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['courses'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/course-prerequisite.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createCoursePrerequisite,
+  deleteCoursePrerequisite,
+  getCoursePrerequisites,
+  getCoursePrerequisitesByCourse,
+} from '@/api/course-prerequisite.api';
+import { getAccessToken } from '@/lib/auth-storage';
+import type {
+  CoursePrerequisiteQuery,
+  CreateCoursePrerequisitePayload,
+} from '@/types/course-prerequisite.type';
+
+// GetCoursePrerequisites
+export function useCoursePrerequisites(query?: CoursePrerequisiteQuery) {
+  return useQuery({
+    queryKey: ['course-prerequisites', query],
+    queryFn: () => getCoursePrerequisites(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetCoursePrerequisitesByCourse
+export function useCoursePrerequisitesByCourse(courseId: string) {
+  return useQuery({
+    queryKey: ['course-prerequisites-by-course', courseId],
+    queryFn: () => getCoursePrerequisitesByCourse(courseId),
+    enabled: Boolean(getAccessToken()) && Boolean(courseId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// CreateCoursePrerequisite
+export function useCreateCoursePrerequisite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateCoursePrerequisitePayload) =>
+      createCoursePrerequisite(payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['course-prerequisites'],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ['course-prerequisites'],
+      });
+    },
+  });
+}
+
+// DeleteCoursePrerequisite
+export function useDeleteCoursePrerequisite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteCoursePrerequisite,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['course-prerequisites'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/course-registration.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  dropCourseRegistration,
+  getMyCourseRegistrations,
+  getRegisteredStudentsBySection,
+  registerCourse,
+} from '@/api/course-registration.api';
+import type {
+  CourseRegistrationQuery,
+  CreateCourseRegistrationPayload,
+} from '@/api/course-registration.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+// GetMyCourseRegistrations
+export function useMyCourseRegistrations(query?: CourseRegistrationQuery) {
+  return useQuery({
+    queryKey: ['course-registrations', query],
+    queryFn: () => getMyCourseRegistrations(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetRegisteredStudentsBySection
+export function useRegisteredStudentsBySection(sectionId: string) {
+  return useQuery({
+    queryKey: ['section-registrations', sectionId],
+    queryFn: () => getRegisteredStudentsBySection(sectionId),
+    enabled: Boolean(getAccessToken()) && Boolean(sectionId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// RegisterCourse
+export function useRegisterCourse() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateCourseRegistrationPayload) =>
+      registerCourse(payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['course-registrations'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['section-registrations'],
+      });
+    },
+  });
+}
+
+// DropCourseRegistration
+export function useDropCourseRegistration() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: dropCourseRegistration,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['course-registrations'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['section-registrations'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/department.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import {
+  createDepartment,
+  deleteDepartment,
+  getDepartmentById,
+  getDepartments,
+  updateDepartment,
+} from '@/api/department.api';
+import type {
+  CreateDepartmentPayload,
+  DepartmentQuery,
+  UpdateDepartmentPayload,
+} from '@/types/department.type';
+import { getAccessToken } from '@/lib/auth-storage';
+
+export function useDepartments(query?: DepartmentQuery) {
+  return useQuery({
+    queryKey: ['departments', query],
+    queryFn: () => getDepartments(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useDepartmentById(departmentId: string) {
+  return useQuery({
+    queryKey: ['department', departmentId],
+    queryFn: () => getDepartmentById(departmentId),
+    enabled: Boolean(getAccessToken()) && Boolean(departmentId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useCreateDepartment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateDepartmentPayload) => createDepartment(payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['departments'],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ['departments'],
+      });
+    },
+  });
+}
+
+export function useUpdateDepartment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      departmentId,
+      payload,
+    }: {
+      departmentId: string;
+      payload: UpdateDepartmentPayload;
+    }) => updateDepartment(departmentId, payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['departments'],
+      });
+    },
+  });
+}
+
+export function useDeleteDepartment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteDepartment,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['departments'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/exam.hook.ts ==========
+'use client';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createExam,
+  deleteExam,
+  getExamById,
+  getExams,
+  updateExam,
+} from '@/api/exam.api';
+import type {
+  CreateExamPayload,
+  ExamQuery,
+  UpdateExamPayload,
+} from '@/types/exam.type';
+import { getAccessToken } from '@/lib/auth-storage';
+
+// GetExams
+export function useExams(query?: ExamQuery) {
+  return useQuery({
+    queryKey: ['exams', query],
+    queryFn: () => getExams(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetExamById
+export function useExamById(examId: string) {
+  return useQuery({
+    queryKey: ['exam', examId],
+    queryFn: () => getExamById(examId),
+    enabled: Boolean(examId && getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// CreateExam
+export function useCreateExam() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateExamPayload) => createExam(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['exams'],
+      });
+    },
+  });
+}
+
+// UpdateExam
+export function useUpdateExam() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      examId,
+      payload,
+    }: {
+      examId: string;
+      payload: UpdateExamPayload;
+    }) => updateExam(examId, payload),
+
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['exams'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['exam', variables.examId],
+        }),
+      ]);
+    },
+  });
+}
+
+// DeleteExam
+export function useDeleteExam() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (examId: string) => deleteExam(examId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['exams'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/fee.hook.ts ==========
+import { useQuery } from '@tanstack/react-query';
+import { getMyFees, type FeeQuery } from '@/api/fee.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+export function useMyFees(query: FeeQuery = {}) {
+  return useQuery({
+    queryKey: ['student-fees', query],
+    queryFn: () => getMyFees(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+========== FILE: src/hooks/instructor.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getInstructors,
+  getMyInstructorProfile,
+  updateMyInstructorProfile,
+  updateMyInstructorProfilePhoto,
+} from '@/api/instructor.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+export function useMyInstructorProfile() {
+  return useQuery({
+    queryKey: ['instructor-profile'],
+    queryFn: getMyInstructorProfile,
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useUpdateMyInstructorProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMyInstructorProfile,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['instructor-profile'],
+      });
+    },
+  });
+}
+
+export function useUpdateMyInstructorProfilePhoto() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMyInstructorProfilePhoto,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['instructor-profile'],
+      });
+    },
+  });
+}
+
+// GetAllInstructors
+export function useInstructors(searchTerm?: string) {
+  return useQuery({
+    queryKey: ['instructors', searchTerm],
+    queryFn: () => getInstructors(searchTerm),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+========== FILE: src/hooks/instructor-application.admin.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getInstructorApplications,
+  reviewInstructorApplication,
+  type InstructorApplicationQuery,
+} from '@/api/instructor-application.admin.api';
+
+export const instructorApplicationAdminKeys = {
+  all: ['admin-instructor-applications'] as const,
+  list: (query: InstructorApplicationQuery) =>
+    [...instructorApplicationAdminKeys.all, query] as const,
+};
+
+export function useInstructorApplications(
+  query: InstructorApplicationQuery = {},
+) {
+  return useQuery({
+    queryKey: instructorApplicationAdminKeys.list(query),
+    queryFn: () => getInstructorApplications(query),
+    retry: false,
+  });
+}
+
+export function useReviewInstructorApplication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      applicationId,
+      status,
+      rejectionReason,
+    }: {
+      applicationId: string;
+      status: 'APPROVED' | 'REJECTED';
+      rejectionReason?: string;
+    }) =>
+      reviewInstructorApplication(applicationId, {
+        status,
+        ...(rejectionReason !== undefined && { rejectionReason }),
+      }),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: instructorApplicationAdminKeys.all,
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/instructor-application.hook.ts ==========
+import { useMutation } from '@tanstack/react-query';
+import {
+  applyAsInstructor,
+  verifyInstructorEmail,
+} from '@/api/instructor-application.api';
+
+export function useApplyAsInstructor() {
+  return useMutation({
+    mutationFn: applyAsInstructor,
+  });
+}
+
+export function useVerifyInstructorEmail() {
+  return useMutation({
+    mutationFn: verifyInstructorEmail,
+  });
+}
+
+========== FILE: src/hooks/payment.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createPayment,
+  getMyPayments,
+  type CreatePaymentPayload,
+} from '@/api/payment.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+export function useCreatePayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreatePaymentPayload) => createPayment(payload),
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['student-fees'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['student-payments'],
+        }),
+      ]);
+    },
+  });
+}
+
+export function useMyPayments() {
+  return useQuery({
+    queryKey: ['student-payments'],
+    queryFn: getMyPayments,
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+========== FILE: src/hooks/program.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createProgram,
+  deleteProgram,
+  getProgramById,
+  getPrograms,
+  updateProgram,
+} from '@/api/program.api';
+import type {
+  CreateProgramPayload,
+  ProgramQuery,
+  UpdateProgramPayload,
+} from '@/types/program.type';
+import { getAccessToken } from '@/lib/auth-storage';
+
+export function usePrograms(query?: ProgramQuery) {
+  return useQuery({
+    queryKey: ['programs', query],
+    queryFn: () => getPrograms(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useProgramById(programId: string) {
+  return useQuery({
+    queryKey: ['program', programId],
+    queryFn: () => getProgramById(programId),
+    enabled: Boolean(getAccessToken()) && Boolean(programId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useCreateProgram() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateProgramPayload) => createProgram(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['programs'],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ['programs'],
+      });
+    },
+  });
+}
+
+export function useUpdateProgram() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      programId,
+      payload,
+    }: {
+      programId: string;
+      payload: UpdateProgramPayload;
+    }) => updateProgram(programId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['programs'],
+      });
+    },
+  });
+}
+
+export function useDeleteProgram() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteProgram,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['programs'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/result.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createResult,
+  deleteResult,
+  getResultById,
+  getResults,
+  updateResult,
+} from '@/api/result.api';
+import type {
+  CreateResultPayload,
+  ResultQuery,
+  UpdateResultPayload,
+} from '@/api/result.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+// GetResults
+export function useResults(query?: ResultQuery) {
+  return useQuery({
+    queryKey: ['results', query],
+    queryFn: () => getResults(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetResultById
+export function useResultById(resultId: string) {
+  return useQuery({
+    queryKey: ['result', resultId],
+    queryFn: () => getResultById(resultId),
+    enabled: Boolean(getAccessToken()) && Boolean(resultId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// CreateResult
+export function useCreateResult() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateResultPayload) => createResult(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['results'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['student-transcript'],
+      });
+    },
+  });
+}
+
+// UpdateResult
+export function useUpdateResult() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      resultId,
+      payload,
+    }: {
+      resultId: string;
+      payload: UpdateResultPayload;
+    }) => updateResult(resultId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['results'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['student-transcript'],
+      });
+    },
+  });
+}
+
+// DeleteResult
+export function useDeleteResult() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (resultId: string) => deleteResult(resultId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['results'],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['student-transcript'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/section.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createSection,
+  deleteSection,
+  getSectionById,
+  getSections,
+  publishSectionGrades,
+  updateSection,
+} from '@/api/section.api';
+import { getAccessToken } from '@/lib/auth-storage';
+import type {
+  CreateSectionPayload,
+  SectionQuery,
+  UpdateSectionPayload,
+} from '@/types/section.type';
+
+// GetSections
+export function useSections(query?: SectionQuery) {
+  return useQuery({
+    queryKey: ['sections', query],
+    queryFn: () => getSections(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetSectionById
+export function useSectionById(sectionId: string) {
+  return useQuery({
+    queryKey: ['section', sectionId],
+    queryFn: () => getSectionById(sectionId),
+    enabled: Boolean(getAccessToken()) && Boolean(sectionId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// CreateSection
+export function useCreateSection() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateSectionPayload) => createSection(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['sections'],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ['sections'],
+      });
+    },
+  });
+}
+
+// UpdateSection
+export function useUpdateSection() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      sectionId,
+      payload,
+    }: {
+      sectionId: string;
+      payload: UpdateSectionPayload;
+    }) => updateSection(sectionId, payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['sections'],
+      });
+    },
+  });
+}
+
+// DeleteSection
+export function useDeleteSection() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteSection,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['sections'],
+      });
+    },
+  });
+}
+
+// PublishSectionGrades
+export function usePublishSectionGrades() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: publishSectionGrades,
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['sections'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['student-transcript'],
+        }),
+      ]);
+    },
+  });
+}
+
+========== FILE: src/hooks/semester.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createSemester,
+  deleteSemester,
+  getSemesterById,
+  getSemesters,
+  updateSemester,
+} from '@/api/semester.api';
+import { getAccessToken } from '@/lib/auth-storage';
+import type {
+  CreateSemesterPayload,
+  SemesterQuery,
+  UpdateSemesterPayload,
+} from '@/types/semester.type';
+
+// GetSemesters
+export function useSemesters(query?: SemesterQuery) {
+  return useQuery({
+    queryKey: ['semesters', query],
+    queryFn: () => getSemesters(query),
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// GetSemesterById
+export function useSemesterById(semesterId: string) {
+  return useQuery({
+    queryKey: ['semester', semesterId],
+    queryFn: () => getSemesterById(semesterId),
+    enabled: Boolean(getAccessToken()) && Boolean(semesterId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// CreateSemester
+export function useCreateSemester() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateSemesterPayload) => createSemester(payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['semesters'],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ['semesters'],
+      });
+    },
+  });
+}
+
+// UpdateSemester
+export function useUpdateSemester() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      semesterId,
+      payload,
+    }: {
+      semesterId: string;
+      payload: UpdateSemesterPayload;
+    }) => updateSemester(semesterId, payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['semesters'],
+      });
+    },
+  });
+}
+
+// DeleteSemester
+export function useDeleteSemester() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteSemester,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['semesters'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/student.hook.ts ==========
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getMyStudentProfile,
+  updateMyStudentProfile,
+  updateMyStudentProfilePhoto,
+} from '@/api/student.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+export function useMyStudentProfile() {
+  return useQuery({
+    queryKey: ['student-profile'],
+    queryFn: getMyStudentProfile,
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useUpdateMyStudentProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMyStudentProfile,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['student-profile'],
+      });
+    },
+  });
+}
+
+export function useUpdateMyStudentProfilePhoto() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMyStudentProfilePhoto,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['student-profile'],
+      });
+    },
+  });
+}
+
+========== FILE: src/hooks/transcript.hook.ts ==========
+import { useQuery } from '@tanstack/react-query';
+import { getMyTranscript } from '@/api/transcript.api';
+import { getAccessToken } from '@/lib/auth-storage';
+
+// GetMyTranscript
+export function useMyTranscript() {
+  return useQuery({
+    queryKey: ['student-transcript'],
+    queryFn: getMyTranscript,
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+========== FILE: src/hooks/use-mobile.ts ==========
+import * as React from "react"
+
+const MOBILE_BREAKPOINT = 768
+
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+    mql.addEventListener("change", onChange)
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
+  return !!isMobile
+}
+
+========== FILE: src/routes/admin.routes.ts ==========
+import type { SidebarItems } from '@/types/sidebar.type';
+
+export const adminRoutes: SidebarItems = [
+  {
+    title: 'Overview',
+    items: [
+      { title: 'Admin Dashboard', url: '/admin-dashboard' },
+      { title: 'Departments', url: '/admin-dashboard/departments' },
+      { title: 'Programs', url: '/admin-dashboard/programs' },
+      { title: 'Courses', url: '/admin-dashboard/courses' },
+      { title: 'Sections', url: '/admin-dashboard/sections' },
+      {
+        title: 'Exam Management',
+        url: '/admin-dashboard/exams',
+      },
+      {
+        title: 'Results Management',
+        url: '/admin-dashboard/results',
+      },
+      {
+        title: 'Course Prerequisites',
+        url: '/admin-dashboard/course-prerequisites',
+      },
+      { title: 'Semesters', url: '/admin-dashboard/semesters' },
+      { title: 'Fee Management', url: '/admin-dashboard/fees' },
+      {
+        title: 'Instructor Applications',
+        url: '/admin-dashboard/instructor-applications',
+      },
+      { title: 'Profile', url: '/admin-dashboard/profile' },
+    ],
+  },
+];
+
+========== FILE: src/routes/instructor.routes.ts ==========
+import type { SidebarItems } from '@/types/sidebar.type';
+
+export const instructorRoutes: SidebarItems = [
+  {
+    title: 'Overview',
+    items: [
+      {
+        title: 'Instructor Dashboard',
+        url: '/instructor-dashboard',
+      },
+      {
+        title: 'Attendance',
+        url: '/instructor-dashboard/attendance',
+      },
+    ],
+  },
+];
+
+========== FILE: src/routes/student.routes.ts ==========
+import type { SidebarItems } from '@/types/sidebar.type';
+
+export const studentRoutes: SidebarItems = [
+  {
+    title: 'Overview',
+    items: [
+      {
+        title: 'Student Dashboard',
+        url: '/student-dashboard',
+      },
+      {
+        title: 'Course Registration',
+        url: '/student-dashboard/course-registration',
+      },
+      {
+        title: 'My Attendance',
+        url: '/student-dashboard/attendance',
+      },
+      {
+        title: 'My Results',
+        url: '/student-dashboard/results',
+      },
+      {
+        title: 'My Transcript',
+        url: '/student-dashboard/transcript',
+      },
+      {
+        title: 'My Fees',
+        url: '/student-dashboard/fees',
+      },
+    ],
+  },
+];
+
+========== FILE: src/types/auth.type.ts ==========
+export type UserRole = 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
+
+export type User = {
+  id: string;
+  email: string;
+  role: UserRole;
+  firstName: string;
+  lastName: string;
+  profileImagePublicId: string | null;
+  profileImageUrl: string | null;
+  isActive: boolean;
+};
+
+export type StudentProfile = {
+  studentId: string;
+};
+
+export type RegisterPayload = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: 'STUDENT';
+};
+
+export type VerifyEmailPayload = {
+  email: string;
+  otp: string;
+};
+
+export type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type RefreshTokenPayload = {
+  refreshToken: string;
+};
+
+export type GoogleLoginPayload = {
+  idToken: string;
+};
+
+export type ForgotPasswordPayload = {
+  email: string;
+};
+
+export type ResetPasswordPayload = {
+  email: string;
+  otp: string;
+  newPassword: string;
+};
+
+export type AuthResponse = {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+};
+
+export type VerifyEmailResponse = AuthResponse & {
+  studentProfile: StudentProfile;
+};
+
+export type RefreshTokenResponse = {
+  accessToken: string;
+};
+
+export type ApiResponse<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
+========== FILE: src/types/course.type.ts ==========
+export interface Course {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  credits: number;
+  departmentId: string;
+  programId: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface CoursePrerequisite {
+  id: string;
+  name: string;
+  code: string;
+  credits: number;
+  isActive: boolean;
+}
+
+export interface CoursePrerequisiteRelation {
+  id: string;
+  prerequisite: CoursePrerequisite;
+}
+
+export interface CourseDetail extends Course {
+  department: {
+    id: string;
+    name: string;
+    code: string;
+    isActive: boolean;
+  };
+  program: {
+    id: string;
+    name: string;
+    code: string;
+    departmentId: string;
+    isActive: boolean;
+  };
+  prerequisites: CoursePrerequisiteRelation[];
+}
+
+export interface CourseMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface CourseQuery {
+  searchTerm?: string;
+  departmentId?: string;
+  programId?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+  sortBy?: 'name' | 'code' | 'credits' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateCoursePayload {
+  name: string;
+  code: string;
+  description?: string;
+  credits: number;
+  departmentId: string;
+  programId: string;
+}
+
+export interface UpdateCoursePayload {
+  name?: string;
+  code?: string;
+  description?: string;
+  credits?: number;
+  departmentId?: string;
+  programId?: string;
+  isActive?: boolean;
+}
+
+========== FILE: src/types/course-prerequisite.type.ts ==========
+export interface CoursePrerequisite {
+  id: string;
+  courseId: string;
+  prerequisiteId: string;
+  course: {
+    id: string;
+    name: string;
+    code: string;
+    credits: number;
+  };
+  prerequisite: {
+    id: string;
+    name: string;
+    code: string;
+    credits: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CoursePrerequisiteMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface CoursePrerequisiteQuery {
+  courseId?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateCoursePrerequisitePayload {
+  courseId: string;
+  prerequisiteId: string;
+}
+
+========== FILE: src/types/department.type.ts ==========
+export interface Department {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface DepartmentMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface DepartmentQuery {
+  searchTerm?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+  sortBy?: 'name' | 'code' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateDepartmentPayload {
+  name: string;
+  code: string;
+  description?: string;
+}
+
+export interface UpdateDepartmentPayload {
+  name?: string;
+  code?: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+========== FILE: src/types/exam.type.ts ==========
+export type ExamType =
+  | 'MIDTERM'
+  | 'FINAL'
+  | 'QUIZ'
+  | 'ASSIGNMENT'
+  | 'PRESENTATION';
+
+export interface Exam {
+  id: string;
+  sectionId: string;
+  title: string;
+  type: ExamType;
+  examDate: string;
+  totalMarks: number;
+  passingMarks: number;
+  weight: number;
+  isActive: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  section: {
+    id: string;
+    name: string;
+    code: string;
+  };
+}
+
+export interface ExamMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ExamQuery {
+  searchTerm?: string;
+  sectionId?: string;
+  type?: ExamType;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+  sortBy?: 'title' | 'examDate' | 'totalMarks' | 'weight' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateExamPayload {
+  sectionId: string;
+  title: string;
+  type: ExamType;
+  examDate: string;
+  totalMarks: number;
+  passingMarks: number;
+  weight: number;
+}
+
+export interface UpdateExamPayload {
+  title?: string;
+  type?: ExamType;
+  examDate?: string;
+  totalMarks?: number;
+  passingMarks?: number;
+  weight?: number;
+  isActive?: boolean;
+}
+
+export interface ExamListResponse {
+  success: boolean;
+  message: string;
+  data: Exam[];
+  meta: ExamMeta;
+}
+
+========== FILE: src/types/instructor.type.ts ==========
+export interface InstructorProfile {
+  id: string;
+  userId: string;
+  instructorId: string;
+  profileImageUrl: string | null;
+  profileImagePublicId: string | null;
+  specialization: string | null;
+  qualification: string | null;
+  experienceYears: number | null;
+  bio: string | null;
+  phone: string | null;
+  address: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: 'INSTRUCTOR';
+  };
+}
+
+export interface UpdateInstructorProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  specialization?: string;
+  qualification?: string;
+  experienceYears?: number;
+  bio?: string;
+  phone?: string;
+  address?: string;
+}
+
+========== FILE: src/types/instructor-application.type.ts ==========
+export type InstructorApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export type ApplyAsInstructorPayload = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  specialization: string;
+  qualification: string;
+  experienceYears: number;
+  bio?: string;
+  departmentId?: string;
+
+  // OptionalUploadedFiles
+  profilePhoto?: File;
+  cv?: File;
+  supportingDocuments?: File[];
+};
+
+export type ApplyAsInstructorResponse = {
+  id: string;
+  email: string;
+  status: InstructorApplicationStatus;
+  emailVerified: boolean;
+};
+
+export type VerifyInstructorEmailPayload = {
+  email: string;
+  otp: string;
+};
+
+export type VerifyInstructorEmailResponse = {
+  id: string;
+  email: string;
+  status: InstructorApplicationStatus;
+  emailVerifiedAt: string;
+};
+
+========== FILE: src/types/program.type.ts ==========
+export interface Program {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  departmentId: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface ProgramMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ProgramQuery {
+  searchTerm?: string;
+  departmentId?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+  sortBy?: 'name' | 'code' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateProgramPayload {
+  name: string;
+  code: string;
+  description?: string;
+  departmentId: string;
+}
+
+export interface UpdateProgramPayload {
+  name?: string;
+  code?: string;
+  description?: string;
+  departmentId?: string;
+  isActive?: boolean;
+}
+
+========== FILE: src/types/section.type.ts ==========
+export interface Section {
+  id: string;
+  name: string;
+  code: string;
+  courseId: string;
+  semesterId: string;
+  instructorId: string;
+  capacity: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+
+  course: {
+    id: string;
+    name: string;
+    code: string;
+    credits: number;
+  };
+
+  semester: {
+    id: string;
+    name: string;
+    code: string;
+  };
+
+  instructor: {
+    id: string;
+    instructorId: string;
+    user: {
+      firstName: string;
+      lastName: string;
+    };
+  };
+}
+
+export interface SectionMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface SectionQuery {
+  searchTerm?: string;
+  courseId?: string;
+  semesterId?: string;
+  instructorId?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+  sortBy?: 'name' | 'code' | 'capacity' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateSectionPayload {
+  name: string;
+  code: string;
+  courseId: string;
+  semesterId: string;
+  instructorId: string;
+  capacity: number;
+}
+
+export interface UpdateSectionPayload {
+  name?: string;
+  code?: string;
+  courseId?: string;
+  semesterId?: string;
+  instructorId?: string;
+  capacity?: number;
+  isActive?: boolean;
+}
+
+========== FILE: src/types/semester.type.ts ==========
+export interface Semester {
+  id: string;
+  name: string;
+  code: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface SemesterMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface SemesterQuery {
+  searchTerm?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+  sortBy?: 'name' | 'code' | 'startDate' | 'endDate' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateSemesterPayload {
+  name: string;
+  code: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface UpdateSemesterPayload {
+  name?: string;
+  code?: string;
+  startDate?: string;
+  endDate?: string;
+  isActive?: boolean;
+}
+
+========== FILE: src/types/sidebar.type.ts ==========
+export interface SidebarItem {
+  title: string;
+  url: string;
+}
+
+export interface SidebarGroup {
+  title: string;
+  items: SidebarItem[];
+}
+
+export type SidebarItems = SidebarGroup[];
+
+========== FILE: src/types/student.type.ts ==========
+export interface StudentProfile {
+  id: string;
+  studentId: string;
+  profileImageUrl: string | null;
+  phone: string | null;
+  address: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: 'STUDENT';
+  };
+}
+
+export interface UpdateStudentProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+}
