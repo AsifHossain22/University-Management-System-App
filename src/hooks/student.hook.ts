@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  getAllStudents,
   getMyStudentProfile,
   updateMyStudentProfile,
   updateMyStudentProfilePhoto,
@@ -41,5 +42,15 @@ export function useUpdateMyStudentProfilePhoto() {
         queryKey: ['student-profile'],
       });
     },
+  });
+}
+
+export function useAllStudents() {
+  return useQuery({
+    queryKey: ['admin-students'],
+    queryFn: getAllStudents,
+    enabled: Boolean(getAccessToken()),
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 }

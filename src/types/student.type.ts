@@ -21,3 +21,14 @@ export interface UpdateStudentProfilePayload {
   phone?: string;
   address?: string;
 }
+
+export interface AdminStudent {
+  id: string;
+  studentId: string;
+  studentEmail: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}

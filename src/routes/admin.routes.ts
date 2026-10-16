@@ -26,6 +26,7 @@ export const adminRoutes: SidebarItems = [
       { title: 'Results Management', url: '/admin-dashboard/results' },
       { title: 'Sections', url: '/admin-dashboard/sections' },
       { title: 'Semesters', url: '/admin-dashboard/semesters' },
+      { title: 'Students', url: '/admin-dashboard/students' },
     ],
   },
 ];

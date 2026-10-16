@@ -1,6 +1,7 @@
 import apiClient from '@/lib/apiClient';
 import type { ApiResponse } from '@/types/auth.type';
 import type {
+  AdminStudent,
   StudentProfile,
   UpdateStudentProfilePayload,
 } from '@/types/student.type';
@@ -25,4 +26,8 @@ export function updateMyStudentProfilePhoto(file: File) {
     method: 'PATCH',
     body: formData,
   });
+}
+
+export function getAllStudents() {
+  return apiClient<ApiResponse<AdminStudent[]>>('/students');
 }
