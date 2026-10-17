@@ -92,8 +92,6 @@ export interface UpdateFeePayload {
   description?: string;
   amount?: number;
   dueDate?: string;
-  status?: FeeStatus;
-  isActive?: boolean;
 }
 
 // Student - GetMyFees
@@ -128,6 +126,18 @@ export function getAllFees(query: FeeQuery = {}) {
   return apiClient<ApiResponse<PaginatedAdminFees>>(
     `/fees${search ? `?${search}` : ''}`,
   );
+}
+
+// Admin/Student - GetSingleFee
+export function getFeeById(feeId: string) {
+  return apiClient<
+    ApiResponse<
+      AdminFee & {
+        totalPaid: number;
+        outstandingAmount: number;
+      }
+    >
+  >(`/fees/${feeId}`);
 }
 
 // Admin - CreateFee

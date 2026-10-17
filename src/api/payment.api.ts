@@ -40,6 +40,7 @@ export interface StudentPayment {
   };
 }
 
+// CreatePayment
 export function createPayment(payload: CreatePaymentPayload) {
   return apiClient<ApiResponse<CreatePaymentResponse>>('/payments', {
     method: 'POST',
@@ -47,6 +48,12 @@ export function createPayment(payload: CreatePaymentPayload) {
   });
 }
 
+// GetMyPayments
 export function getMyPayments() {
   return apiClient<ApiResponse<StudentPayment[]>>('/payments/my-payments');
+}
+
+// GetSinglePayment
+export function getPaymentById(paymentId: string) {
+  return apiClient<ApiResponse<StudentPayment>>(`/payments/${paymentId}`);
 }
