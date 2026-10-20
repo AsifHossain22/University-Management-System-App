@@ -11,14 +11,18 @@ type NavLinkProps = {
 export function NavLink({ href, children }: NavLinkProps) {
   const pathname = usePathname();
 
-  const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+  const isActive =
+    href === '/'
+      ? pathname === '/'
+      : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <Link
       href={href}
+      aria-current={isActive ? 'page' : undefined}
       className={
         isActive
-          ? 'text-sm font-semibold text-primary'
+          ? 'text-sm font-semibold text-primary transition-colors'
           : 'text-sm font-medium text-muted-foreground transition-colors hover:text-primary'
       }
     >
