@@ -198,7 +198,7 @@ export default function FeaturesPage() {
               </span>
             </h1>
 
-            <p className="mt-6 max-w-xl mx-auto lg:mx-start text-base leading-8 text-muted-foreground sm:text-lg">
+            <p className="mt-6 max-w-xl mx-auto lg:mx-0 text-base leading-8 text-muted-foreground sm:text-lg">
               Bring academic management, student services, administration and
               financial workflows into one connected University Management
               System.
