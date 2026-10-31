@@ -37,19 +37,19 @@ export function DashboardSidebar({
   const routes = sidebarRoutes[userRole] ?? [];
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b px-4 py-4">
+    <Sidebar variant="sidebar" collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-md outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex items-center gap-3 rounded-lg outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-sidebar-ring"
           aria-label="University MS home"
         >
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
             <GraduationCap className="size-6" aria-hidden="true" />
           </span>
 
-          <span className="flex min-w-0 flex-col gap-0.5">
-            <span className="truncate text-sm font-bold tracking-tight">
+          <span className="flex min-w-0 flex-col gap-0.5 group-data-[collapsible=icon]:hidden">
+            <span className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
               University MS
             </span>
             <span className="text-xs text-muted-foreground">
@@ -59,10 +59,10 @@ export function DashboardSidebar({
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="gap-2 px-2 py-3">
+      <SidebarContent className="gap-3 px-3 py-4">
         {routes.map(group => (
           <SidebarGroup key={group.title} className="px-0">
-            <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <SidebarGroupLabel className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               {group.title}
             </SidebarGroupLabel>
 
@@ -82,7 +82,7 @@ export function DashboardSidebar({
                         render={<Link href={item.url} />}
                         isActive={isActive}
                         tooltip={item.title}
-                        className="h-10 rounded-lg px-3 transition-colors"
+                        className="h-10 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground"
                       >
                         <span className="truncate">{item.title}</span>
                       </SidebarMenuButton>
