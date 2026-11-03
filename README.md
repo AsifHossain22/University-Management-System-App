@@ -1,6 +1,6 @@
 # University Management System - App (Frontend)
 
-A modern, responsive university management platform that simplifies academic and administrative operations through role-based dashboards and an intuitive web interface.
+A modern, responsive university management platform that simplifies academic and administrative operations through role-based dashboards and an user-friendly web interface.
 
 ---
 
