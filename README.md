@@ -26,7 +26,7 @@ A modern, responsive university management platform that simplifies academic and
 
 **University Management System (UMS)** is a complete web application designed to simplify university academic and administrative workflows through a centralized digital platform.
 
-The frontend provides an intuitive interface for students, instructors and administrators allowing each role to access relevant features through dedicated dashboards.
+The frontend provides an user-friendly interface for students, instructors and administrators allowing each role to access relevant features through dedicated dashboards.
 
 I built this application using Next.js, TypeScript and modern frontend technologies to create a responsive, maintainable and user-friendly experience.
 
