@@ -1,22 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createCoursePrerequisite,
   deleteCoursePrerequisite,
   getCoursePrerequisites,
   getCoursePrerequisitesByCourse,
-} from '@/api/course-prerequisite.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/course-prerequisite.api";
 import type {
   CoursePrerequisiteQuery,
   CreateCoursePrerequisitePayload,
-} from '@/types/course-prerequisite.type';
+} from "@/types/course-prerequisite.type";
 
 // GetCoursePrerequisites
 export function useCoursePrerequisites(query?: CoursePrerequisiteQuery) {
   return useQuery({
-    queryKey: ['course-prerequisites', query],
+    queryKey: ["course-prerequisites", query],
     queryFn: () => getCoursePrerequisites(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -25,9 +23,9 @@ export function useCoursePrerequisites(query?: CoursePrerequisiteQuery) {
 // GetCoursePrerequisitesByCourse
 export function useCoursePrerequisitesByCourse(courseId: string) {
   return useQuery({
-    queryKey: ['course-prerequisites-by-course', courseId],
+    queryKey: ["course-prerequisites-by-course", courseId],
     queryFn: () => getCoursePrerequisitesByCourse(courseId),
-    enabled: Boolean(getAccessToken()) && Boolean(courseId),
+    enabled: Boolean(courseId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -43,11 +41,11 @@ export function useCreateCoursePrerequisite() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['course-prerequisites'],
+        queryKey: ["course-prerequisites"],
       });
 
       await queryClient.refetchQueries({
-        queryKey: ['course-prerequisites'],
+        queryKey: ["course-prerequisites"],
       });
     },
   });
@@ -62,7 +60,7 @@ export function useDeleteCoursePrerequisite() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['course-prerequisites'],
+        queryKey: ["course-prerequisites"],
       });
     },
   });

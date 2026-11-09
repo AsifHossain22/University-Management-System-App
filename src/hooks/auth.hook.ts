@@ -7,6 +7,7 @@ import {
   updateMe,
   updateMePhoto,
   userLogin,
+  userLogout,
   userRegistration,
   verifyEmail,
 } from "@/api/auth.api";
@@ -29,6 +30,13 @@ export function useVerifyEmail() {
 export function useLogin() {
   return useMutation({
     mutationFn: userLogin,
+  });
+}
+
+// UserLogout
+export function useLogout() {
+  return useMutation({
+    mutationFn: userLogout,
   });
 }
 

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createSection,
   deleteSection,
@@ -6,20 +6,18 @@ import {
   getSections,
   publishSectionGrades,
   updateSection,
-} from '@/api/section.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/section.api";
 import type {
   CreateSectionPayload,
   SectionQuery,
   UpdateSectionPayload,
-} from '@/types/section.type';
+} from "@/types/section.type";
 
 // GetSections
 export function useSections(query?: SectionQuery) {
   return useQuery({
-    queryKey: ['sections', query],
+    queryKey: ["sections", query],
     queryFn: () => getSections(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -28,9 +26,9 @@ export function useSections(query?: SectionQuery) {
 // GetSectionById
 export function useSectionById(sectionId: string) {
   return useQuery({
-    queryKey: ['section', sectionId],
+    queryKey: ["section", sectionId],
     queryFn: () => getSectionById(sectionId),
-    enabled: Boolean(getAccessToken()) && Boolean(sectionId),
+    enabled: Boolean(sectionId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -44,11 +42,11 @@ export function useCreateSection() {
     mutationFn: (payload: CreateSectionPayload) => createSection(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['sections'],
+        queryKey: ["sections"],
       });
 
       await queryClient.refetchQueries({
-        queryKey: ['sections'],
+        queryKey: ["sections"],
       });
     },
   });
@@ -69,7 +67,7 @@ export function useUpdateSection() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['sections'],
+        queryKey: ["sections"],
       });
     },
   });
@@ -84,7 +82,7 @@ export function useDeleteSection() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['sections'],
+        queryKey: ["sections"],
       });
     },
   });
@@ -100,10 +98,10 @@ export function usePublishSectionGrades() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: ['sections'],
+          queryKey: ["sections"],
         }),
         queryClient.invalidateQueries({
-          queryKey: ['student-transcript'],
+          queryKey: ["student-transcript"],
         }),
       ]);
     },

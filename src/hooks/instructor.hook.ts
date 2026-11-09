@@ -1,17 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getInstructors,
   getMyInstructorProfile,
   updateMyInstructorProfile,
   updateMyInstructorProfilePhoto,
-} from '@/api/instructor.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/instructor.api";
 
 export function useMyInstructorProfile() {
   return useQuery({
-    queryKey: ['instructor-profile'],
+    queryKey: ["instructor-profile"],
     queryFn: getMyInstructorProfile,
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -25,7 +23,7 @@ export function useUpdateMyInstructorProfile() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['instructor-profile'],
+        queryKey: ["instructor-profile"],
       });
     },
   });
@@ -39,7 +37,7 @@ export function useUpdateMyInstructorProfilePhoto() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['instructor-profile'],
+        queryKey: ["instructor-profile"],
       });
     },
   });
@@ -48,9 +46,8 @@ export function useUpdateMyInstructorProfilePhoto() {
 // GetAllInstructors
 export function useInstructors(searchTerm?: string) {
   return useQuery({
-    queryKey: ['instructors', searchTerm],
+    queryKey: ["instructors", searchTerm],
     queryFn: () => getInstructors(searchTerm),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });

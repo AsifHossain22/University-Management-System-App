@@ -1,13 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
-import { getMyTranscript } from '@/api/transcript.api';
-import { getAccessToken } from '@/lib/auth-storage';
+import { useQuery } from "@tanstack/react-query";
+import { getMyTranscript } from "@/api/transcript.api";
 
 // GetMyTranscript
 export function useMyTranscript() {
   return useQuery({
-    queryKey: ['student-transcript'],
+    queryKey: ["student-transcript"],
     queryFn: getMyTranscript,
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });

@@ -1,26 +1,24 @@
-'use client';
+"use client";
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createExam,
   deleteExam,
   getExamById,
   getExams,
   updateExam,
-} from '@/api/exam.api';
+} from "@/api/exam.api";
 import type {
   CreateExamPayload,
   ExamQuery,
   UpdateExamPayload,
-} from '@/types/exam.type';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/types/exam.type";
 
 // GetExams
 export function useExams(query?: ExamQuery) {
   return useQuery({
-    queryKey: ['exams', query],
+    queryKey: ["exams", query],
     queryFn: () => getExams(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -29,9 +27,9 @@ export function useExams(query?: ExamQuery) {
 // GetExamById
 export function useExamById(examId: string) {
   return useQuery({
-    queryKey: ['exam', examId],
+    queryKey: ["exam", examId],
     queryFn: () => getExamById(examId),
-    enabled: Boolean(examId && getAccessToken()),
+    enabled: Boolean(examId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -45,7 +43,7 @@ export function useCreateExam() {
     mutationFn: (payload: CreateExamPayload) => createExam(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['exams'],
+        queryKey: ["exams"],
       });
     },
   });
@@ -67,10 +65,10 @@ export function useUpdateExam() {
     onSuccess: async (_, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: ['exams'],
+          queryKey: ["exams"],
         }),
         queryClient.invalidateQueries({
-          queryKey: ['exam', variables.examId],
+          queryKey: ["exam", variables.examId],
         }),
       ]);
     },
@@ -85,7 +83,7 @@ export function useDeleteExam() {
     mutationFn: (examId: string) => deleteExam(examId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['exams'],
+        queryKey: ["exams"],
       });
     },
   });

@@ -1,10 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  type CreatePaymentPayload,
   createPayment,
   getMyPayments,
-  type CreatePaymentPayload,
-} from '@/api/payment.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/payment.api";
 
 export function useCreatePayment() {
   const queryClient = useQueryClient();
@@ -15,10 +14,10 @@ export function useCreatePayment() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: ['student-fees'],
+          queryKey: ["student-fees"],
         }),
         queryClient.invalidateQueries({
-          queryKey: ['student-payments'],
+          queryKey: ["student-payments"],
         }),
       ]);
     },
@@ -27,9 +26,8 @@ export function useCreatePayment() {
 
 export function useMyPayments() {
   return useQuery({
-    queryKey: ['student-payments'],
+    queryKey: ["student-payments"],
     queryFn: getMyPayments,
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });

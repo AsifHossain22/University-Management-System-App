@@ -52,6 +52,13 @@ export function getMe() {
   return apiClient<ApiResponse<User>>("/auth/me");
 }
 
+// UserLogout
+export function userLogout() {
+  return apiClient<ApiResponse<{ message: string }>>("/auth/logout", {
+    method: "POST",
+  });
+}
+
 // UpdateMe
 export function updateMe(payload: { firstName?: string; lastName?: string }) {
   return apiClient<ApiResponse<User>>("/auth/me", {

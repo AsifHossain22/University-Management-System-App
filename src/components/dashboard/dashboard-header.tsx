@@ -1,46 +1,53 @@
-'use client';
+"use client";
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useQueryClient } from "@tanstack/react-query";
+import { GraduationCap, LayoutDashboard, LogOut, User } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ThemeToggle } from '@/components/shared/theme-toggle';
-import { clearAuthTokens } from '@/lib/auth-storage';
-import { useAuth } from '@/providers/auth.provider';
-import { useQueryClient } from '@tanstack/react-query';
-import { GraduationCap, LayoutDashboard, LogOut, User } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+} from "@/components/ui/dropdown-menu";
+import { useLogout } from "@/hooks/auth.hook";
+import { useAuth } from "@/providers/auth.provider";
 
 const dashboardRoutes = {
-  STUDENT: '/student-dashboard',
-  INSTRUCTOR: '/instructor-dashboard',
-  ADMIN: '/admin-dashboard',
+  STUDENT: "/student-dashboard",
+  INSTRUCTOR: "/instructor-dashboard",
+  ADMIN: "/admin-dashboard",
 } as const;
 
 export function DashboardHeader() {
   const { user, setUser, isLoading } = useAuth();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const logout = useLogout();
 
-  const dashboardHref = user ? dashboardRoutes[user.role] : '/';
+  const dashboardHref = user ? dashboardRoutes[user.role] : "/";
 
   const initials = user
     ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-    : '';
+    : "";
 
-  const handleLogout = () => {
-    clearAuthTokens();
-    setUser(null);
-    queryClient.removeQueries({ queryKey: ['user'] });
+  const handleLogout = async () => {
+    try {
+      await logout.mutateAsync();
 
-    toast.success('Logged out successfully.');
-    router.push('/');
+      setUser(null);
+      queryClient.clear();
+
+      toast.success("Logged out successfully.");
+      router.replace("/");
+      router.refresh();
+    } catch {
+      toast.error("Logout failed. Please try again.");
+    }
   };
 
   return (
@@ -127,10 +134,11 @@ export function DashboardHeader() {
 
               <DropdownMenuItem
                 onClick={handleLogout}
+                disabled={logout.isPending}
                 className="cursor-pointer rounded-lg py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive"
               >
                 <LogOut className="size-4" />
-                <span>Sign out</span>
+                <span>{logout.isPending ? "Signing out..." : "Sign out"}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

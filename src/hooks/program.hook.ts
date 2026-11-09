@@ -1,23 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createProgram,
   deleteProgram,
   getProgramById,
   getPrograms,
   updateProgram,
-} from '@/api/program.api';
+} from "@/api/program.api";
 import type {
   CreateProgramPayload,
   ProgramQuery,
   UpdateProgramPayload,
-} from '@/types/program.type';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/types/program.type";
 
 export function usePrograms(query?: ProgramQuery) {
   return useQuery({
-    queryKey: ['programs', query],
+    queryKey: ["programs", query],
     queryFn: () => getPrograms(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -25,9 +23,9 @@ export function usePrograms(query?: ProgramQuery) {
 
 export function useProgramById(programId: string) {
   return useQuery({
-    queryKey: ['program', programId],
+    queryKey: ["program", programId],
     queryFn: () => getProgramById(programId),
-    enabled: Boolean(getAccessToken()) && Boolean(programId),
+    enabled: Boolean(programId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -40,11 +38,11 @@ export function useCreateProgram() {
     mutationFn: (payload: CreateProgramPayload) => createProgram(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['programs'],
+        queryKey: ["programs"],
       });
 
       await queryClient.refetchQueries({
-        queryKey: ['programs'],
+        queryKey: ["programs"],
       });
     },
   });
@@ -63,7 +61,7 @@ export function useUpdateProgram() {
     }) => updateProgram(programId, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['programs'],
+        queryKey: ["programs"],
       });
     },
   });
@@ -76,7 +74,7 @@ export function useDeleteProgram() {
     mutationFn: deleteProgram,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['programs'],
+        queryKey: ["programs"],
       });
     },
   });

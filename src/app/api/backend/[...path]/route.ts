@@ -38,10 +38,10 @@ type TokenResponse = {
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
 
 function getBackendBaseUrl() {
-  const value = process.env.BACKEND_API_URL;
+  const value = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   if (!value) {
-    throw new Error('BACKEND_API_URL is not configured.');
+    throw new Error('NEXT_PUBLIC_API_BASE_URL is not configured.');
   }
 
   return value.replace(/\/+$/, '');

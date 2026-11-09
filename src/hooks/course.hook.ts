@@ -1,24 +1,22 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createCourse,
   deleteCourse,
   getCourseById,
   getCourses,
   updateCourse,
-} from '@/api/course.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/course.api";
 import type {
   CourseQuery,
   CreateCoursePayload,
   UpdateCoursePayload,
-} from '@/types/course.type';
+} from "@/types/course.type";
 
 // GetCourses
 export function useCourses(query?: CourseQuery) {
   return useQuery({
-    queryKey: ['courses', query],
+    queryKey: ["courses", query],
     queryFn: () => getCourses(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -27,9 +25,9 @@ export function useCourses(query?: CourseQuery) {
 // GetCourseById
 export function useCourseById(courseId: string) {
   return useQuery({
-    queryKey: ['course', courseId],
+    queryKey: ["course", courseId],
     queryFn: () => getCourseById(courseId),
-    enabled: Boolean(getAccessToken()) && Boolean(courseId),
+    enabled: Boolean(courseId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -44,11 +42,11 @@ export function useCreateCourse() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['courses'],
+        queryKey: ["courses"],
       });
 
       await queryClient.refetchQueries({
-        queryKey: ['courses'],
+        queryKey: ["courses"],
       });
     },
   });
@@ -69,7 +67,7 @@ export function useUpdateCourse() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['courses'],
+        queryKey: ["courses"],
       });
     },
   });
@@ -84,7 +82,7 @@ export function useDeleteCourse() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['courses'],
+        queryKey: ["courses"],
       });
     },
   });

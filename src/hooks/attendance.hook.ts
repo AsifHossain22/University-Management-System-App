@@ -1,21 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  type AttendanceQuery,
+  type CreateAttendancePayload,
   createAttendance,
   getAttendances,
   getMyAttendance,
-  updateAttendance,
-  type AttendanceQuery,
-  type CreateAttendancePayload,
   type UpdateAttendancePayload,
-} from '@/api/attendance.api';
-import { getAccessToken } from '@/lib/auth-storage';
+  updateAttendance,
+} from "@/api/attendance.api";
 
 // GetAttendances - INSTRUCTOR
 export function useAttendances(query?: AttendanceQuery) {
   return useQuery({
-    queryKey: ['attendances', query],
+    queryKey: ["attendances", query],
     queryFn: () => getAttendances(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -24,9 +22,8 @@ export function useAttendances(query?: AttendanceQuery) {
 // GetMyAttendance - STUDENT
 export function useMyAttendance(query?: AttendanceQuery) {
   return useQuery({
-    queryKey: ['my-attendance', query],
+    queryKey: ["my-attendance", query],
     queryFn: () => getMyAttendance(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -40,11 +37,11 @@ export function useCreateAttendance() {
     mutationFn: (payload: CreateAttendancePayload) => createAttendance(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['attendances'],
+        queryKey: ["attendances"],
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ['my-attendance'],
+        queryKey: ["my-attendance"],
       });
     },
   });
@@ -64,11 +61,11 @@ export function useUpdateAttendance() {
     }) => updateAttendance(attendanceId, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['attendances'],
+        queryKey: ["attendances"],
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ['my-attendance'],
+        queryKey: ["my-attendance"],
       });
     },
   });

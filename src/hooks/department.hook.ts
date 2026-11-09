@@ -1,24 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createDepartment,
   deleteDepartment,
   getDepartmentById,
   getDepartments,
   updateDepartment,
-} from '@/api/department.api';
+} from "@/api/department.api";
 import type {
   CreateDepartmentPayload,
   DepartmentQuery,
   UpdateDepartmentPayload,
-} from '@/types/department.type';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/types/department.type";
 
 export function useDepartments(query?: DepartmentQuery) {
   return useQuery({
-    queryKey: ['departments', query],
+    queryKey: ["departments", query],
     queryFn: () => getDepartments(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -26,9 +23,9 @@ export function useDepartments(query?: DepartmentQuery) {
 
 export function useDepartmentById(departmentId: string) {
   return useQuery({
-    queryKey: ['department', departmentId],
+    queryKey: ["department", departmentId],
     queryFn: () => getDepartmentById(departmentId),
-    enabled: Boolean(getAccessToken()) && Boolean(departmentId),
+    enabled: Boolean(departmentId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -42,11 +39,11 @@ export function useCreateDepartment() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['departments'],
+        queryKey: ["departments"],
       });
 
       await queryClient.refetchQueries({
-        queryKey: ['departments'],
+        queryKey: ["departments"],
       });
     },
   });
@@ -66,7 +63,7 @@ export function useUpdateDepartment() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['departments'],
+        queryKey: ["departments"],
       });
     },
   });
@@ -80,7 +77,7 @@ export function useDeleteDepartment() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['departments'],
+        queryKey: ["departments"],
       });
     },
   });

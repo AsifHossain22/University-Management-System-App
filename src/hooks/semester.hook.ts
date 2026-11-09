@@ -1,24 +1,22 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createSemester,
   deleteSemester,
   getSemesterById,
   getSemesters,
   updateSemester,
-} from '@/api/semester.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/semester.api";
 import type {
   CreateSemesterPayload,
   SemesterQuery,
   UpdateSemesterPayload,
-} from '@/types/semester.type';
+} from "@/types/semester.type";
 
 // GetSemesters
 export function useSemesters(query?: SemesterQuery) {
   return useQuery({
-    queryKey: ['semesters', query],
+    queryKey: ["semesters", query],
     queryFn: () => getSemesters(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -27,9 +25,9 @@ export function useSemesters(query?: SemesterQuery) {
 // GetSemesterById
 export function useSemesterById(semesterId: string) {
   return useQuery({
-    queryKey: ['semester', semesterId],
+    queryKey: ["semester", semesterId],
     queryFn: () => getSemesterById(semesterId),
-    enabled: Boolean(getAccessToken()) && Boolean(semesterId),
+    enabled: Boolean(semesterId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -44,11 +42,11 @@ export function useCreateSemester() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['semesters'],
+        queryKey: ["semesters"],
       });
 
       await queryClient.refetchQueries({
-        queryKey: ['semesters'],
+        queryKey: ["semesters"],
       });
     },
   });
@@ -69,7 +67,7 @@ export function useUpdateSemester() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['semesters'],
+        queryKey: ["semesters"],
       });
     },
   });
@@ -84,7 +82,7 @@ export function useDeleteSemester() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['semesters'],
+        queryKey: ["semesters"],
       });
     },
   });

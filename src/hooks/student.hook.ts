@@ -1,17 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAllStudents,
   getMyStudentProfile,
   updateMyStudentProfile,
   updateMyStudentProfilePhoto,
-} from '@/api/student.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/student.api";
 
 export function useMyStudentProfile() {
   return useQuery({
-    queryKey: ['student-profile'],
+    queryKey: ["student-profile"],
     queryFn: getMyStudentProfile,
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -25,7 +23,7 @@ export function useUpdateMyStudentProfile() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['student-profile'],
+        queryKey: ["student-profile"],
       });
     },
   });
@@ -39,7 +37,7 @@ export function useUpdateMyStudentProfilePhoto() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['student-profile'],
+        queryKey: ["student-profile"],
       });
     },
   });
@@ -47,9 +45,8 @@ export function useUpdateMyStudentProfilePhoto() {
 
 export function useAllStudents() {
   return useQuery({
-    queryKey: ['admin-students'],
+    queryKey: ["admin-students"],
     queryFn: getAllStudents,
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });

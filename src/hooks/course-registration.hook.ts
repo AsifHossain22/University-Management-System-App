@@ -1,22 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  CourseRegistrationQuery,
+  CreateCourseRegistrationPayload,
+} from "@/api/course-registration.api";
 import {
   dropCourseRegistration,
   getMyCourseRegistrations,
   getRegisteredStudentsBySection,
   registerCourse,
-} from '@/api/course-registration.api';
-import type {
-  CourseRegistrationQuery,
-  CreateCourseRegistrationPayload,
-} from '@/api/course-registration.api';
-import { getAccessToken } from '@/lib/auth-storage';
+} from "@/api/course-registration.api";
 
 // GetMyCourseRegistrations
 export function useMyCourseRegistrations(query?: CourseRegistrationQuery) {
   return useQuery({
-    queryKey: ['course-registrations', query],
+    queryKey: ["course-registrations", query],
     queryFn: () => getMyCourseRegistrations(query),
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -25,9 +23,9 @@ export function useMyCourseRegistrations(query?: CourseRegistrationQuery) {
 // GetRegisteredStudentsBySection
 export function useRegisteredStudentsBySection(sectionId: string) {
   return useQuery({
-    queryKey: ['section-registrations', sectionId],
+    queryKey: ["section-registrations", sectionId],
     queryFn: () => getRegisteredStudentsBySection(sectionId),
-    enabled: Boolean(getAccessToken()) && Boolean(sectionId),
+    enabled: Boolean(sectionId),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -43,11 +41,11 @@ export function useRegisterCourse() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['course-registrations'],
+        queryKey: ["course-registrations"],
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ['section-registrations'],
+        queryKey: ["section-registrations"],
       });
     },
   });
@@ -62,11 +60,11 @@ export function useDropCourseRegistration() {
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['course-registrations'],
+        queryKey: ["course-registrations"],
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ['section-registrations'],
+        queryKey: ["section-registrations"],
       });
     },
   });

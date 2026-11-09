@@ -1,26 +1,6 @@
-'use client';
+"use client";
 
-import { navItems } from '@/app/data/data';
-import { ThemeToggle } from '@/components/shared/theme-toggle';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import { clearAuthTokens } from '@/lib/auth-storage';
-import { useAuth } from '@/providers/auth.provider';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
   ChevronDown,
@@ -29,46 +9,73 @@ import {
   LogOut,
   Menu,
   User,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { NavLink } from './nav-link';
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { navItems } from "@/app/data/data";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useLogout } from "@/hooks/auth.hook";
+import { useAuth } from "@/providers/auth.provider";
+import { NavLink } from "./nav-link";
 
 const dashboardRoutes = {
-  STUDENT: '/student-dashboard',
-  INSTRUCTOR: '/instructor-dashboard',
-  ADMIN: '/admin-dashboard',
+  STUDENT: "/student-dashboard",
+  INSTRUCTOR: "/instructor-dashboard",
+  ADMIN: "/admin-dashboard",
 } as const;
 
 export function Navbar() {
   const { user, setUser, isLoading } = useAuth();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const logout = useLogout();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const dashboardHref = user ? dashboardRoutes[user.role] : '/';
+  const dashboardHref = user ? dashboardRoutes[user.role] : "/";
 
   const initials = user
     ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-    : '';
+    : "";
 
-  const handleLogout = () => {
-    clearAuthTokens();
-    setUser(null);
-    queryClient.removeQueries({ queryKey: ['user'] });
+  const handleLogout = async () => {
+    try {
+      await logout.mutateAsync();
 
-    setMobileMenuOpen(false);
-    toast.success('Logged out successfully.');
-    router.push('/');
+      setUser(null);
+      queryClient.clear();
+      setMobileMenuOpen(false);
+
+      toast.success("Logged out successfully.");
+      router.replace("/");
+      router.refresh();
+    } catch {
+      toast.error("Logout failed. Please try again.");
+    }
   };
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 shadow-sm shadow-black/[0.02] backdrop-blur-xl">
-      <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 shadow-sm shadow-black/2 backdrop-blur-xl">
+      <div className="mx-auto flex h-17 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Brand */}
         <Link
           href="/"
@@ -95,7 +102,7 @@ export function Navbar() {
           aria-label="Main navigation"
           className="hidden items-center gap-8 lg:flex"
         >
-          {navItems.map(item => (
+          {navItems.map((item) => (
             <NavLink key={item.href} href={item.href}>
               {item.label}
             </NavLink>
@@ -190,10 +197,13 @@ export function Navbar() {
 
                 <DropdownMenuItem
                   onClick={handleLogout}
+                  disabled={logout.isPending}
                   className="cursor-pointer rounded-lg py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive"
                 >
                   <LogOut className="size-4" />
-                  <span>Sign out</span>
+                  <span>
+                    {logout.isPending ? "Signing out..." : "Sign out"}
+                  </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -256,10 +266,11 @@ export function Navbar() {
 
                 <DropdownMenuItem
                   onClick={handleLogout}
+                  disabled={logout.isPending}
                   className="cursor-pointer rounded-lg text-destructive focus:bg-destructive/10 focus:text-destructive"
                 >
                   <LogOut className="size-4" />
-                  Sign out
+                  {logout.isPending ? "Signing out..." : "Sign out"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -294,13 +305,14 @@ export function Navbar() {
                   aria-label="Mobile navigation"
                   className="flex flex-col gap-1"
                 >
-                  {navItems.map(item => (
+                  {navItems.map((item) => (
                     <div
                       key={item.href}
-                      onClick={closeMobileMenu}
                       className="rounded-xl px-2 py-1 transition-colors hover:bg-accent"
                     >
-                      <NavLink href={item.href}>{item.label}</NavLink>
+                      <NavLink href={item.href} onClick={closeMobileMenu}>
+                        {item.label}
+                      </NavLink>
                     </div>
                   ))}
                 </nav>
