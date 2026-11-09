@@ -1,24 +1,8 @@
-import { ofetch } from 'ofetch';
-import { getAccessToken } from '@/lib/auth-storage';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+import { ofetch } from "ofetch";
 
 const apiClient = ofetch.create({
-  baseURL: BASE_URL,
-
-  onRequest({ options }) {
-    const accessToken = getAccessToken();
-
-    if (!accessToken) {
-      return;
-    }
-
-    const headers = new Headers(options.headers);
-
-    headers.set('Authorization', `Bearer ${accessToken}`);
-
-    options.headers = headers;
-  },
+  baseURL: "/api/backend",
+  credentials: "include",
 });
 
 export default apiClient;

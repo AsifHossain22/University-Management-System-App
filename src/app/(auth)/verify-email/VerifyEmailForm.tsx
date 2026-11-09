@@ -1,39 +1,41 @@
-'use client';
+"use client";
 
-import { useForm } from '@tanstack/react-form';
-import { Loader2 } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { useForm } from "@tanstack/react-form";
+import { useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { useVerifyEmail } from '@/hooks/auth.hook';
-import { getApiErrorMessage } from '@/lib/api-error';
-import { setAuthTokens } from '@/lib/auth-storage';
-import { useAuth } from '@/providers/auth.provider';
-import { verifyEmailSchema } from '@/validation/auth.validation';
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { useVerifyEmail } from "@/hooks/auth.hook";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { useAuth } from "@/providers/auth.provider";
+import type { ApiResponse, User } from "@/types/auth.type";
+import { verifyEmailSchema } from "@/validation/auth.validation";
 
 type VerifyEmailFormValues = z.infer<typeof verifyEmailSchema>;
 
 export default function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const { setUser } = useAuth();
 
-  const email = searchParams.get('email') ?? '';
+  const email = searchParams.get("email") ?? "";
 
   const { mutate: verifyEmail, isPending: verificationPending } =
     useVerifyEmail();
 
   const defaultValues: VerifyEmailFormValues = {
     email,
-    otp: '',
+    otp: "",
   };
 
   const form = useForm({
@@ -43,33 +45,37 @@ export default function VerifyEmailForm() {
     },
     onSubmit: async ({ value }) => {
       verifyEmail(value, {
-        onSuccess: response => {
-          const { accessToken, refreshToken, user } = response.data;
+        onSuccess: (response) => {
+          const { user } = response.data;
 
-          setAuthTokens(accessToken, refreshToken);
           setUser(user);
 
-          toast.success('Email verified successfully.', {
+          queryClient.setQueryData<ApiResponse<User>>(["user"], {
+            success: response.success,
+            message: response.message,
+            data: user,
+          });
+
+          toast.success("Email verified successfully.", {
             description: `Welcome to the University Management System, ${user.firstName}!`,
           });
 
-          if (user.role === 'STUDENT') {
-            router.push('/student-dashboard');
+          if (user.role === "STUDENT") {
+            router.push("/student-dashboard");
             return;
           }
 
-          if (user.role === 'INSTRUCTOR') {
-            router.push('/instructor-dashboard');
+          if (user.role === "INSTRUCTOR") {
+            router.push("/instructor-dashboard");
             return;
           }
 
-          if (user.role === 'ADMIN') {
-            router.push('/admin-dashboard');
-            return;
+          if (user.role === "ADMIN") {
+            router.push("/admin-dashboard");
           }
         },
 
-        onError: error => {
+        onError: (error) => {
           toast.error(getApiErrorMessage(error));
         },
       });
@@ -92,7 +98,7 @@ export default function VerifyEmailForm() {
         </div>
 
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
             form.handleSubmit();
@@ -101,7 +107,7 @@ export default function VerifyEmailForm() {
         >
           <FieldGroup>
             <form.Field name="email">
-              {field => {
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -115,7 +121,7 @@ export default function VerifyEmailForm() {
                       type="email"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={e => field.handleChange(e.target.value)}
+                      onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
                       autoComplete="email"
                       readOnly
@@ -130,7 +136,7 @@ export default function VerifyEmailForm() {
             </form.Field>
 
             <form.Field name="otp">
-              {field => {
+              {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -149,7 +155,7 @@ export default function VerifyEmailForm() {
                       placeholder="123456"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={e => field.handleChange(e.target.value)}
+                      onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
                       autoComplete="one-time-code"
                     />
@@ -173,7 +179,7 @@ export default function VerifyEmailForm() {
                   Verifying...
                 </>
               ) : (
-                'Verify email'
+                "Verify email"
               )}
             </Button>
           </FieldGroup>

@@ -1,17 +1,15 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   forgotPassword,
   getMe,
   googleOAuth,
-  refreshToken,
   resetPassword,
   updateMe,
   updateMePhoto,
   userLogin,
   userRegistration,
   verifyEmail,
-} from '@/api/auth.api';
-import { getAccessToken } from '@/lib/auth-storage';
-import { useMutation, useQuery } from '@tanstack/react-query';
+} from "@/api/auth.api";
 
 // UserRegistration
 export function useRegistration() {
@@ -31,13 +29,6 @@ export function useVerifyEmail() {
 export function useLogin() {
   return useMutation({
     mutationFn: userLogin,
-  });
-}
-
-// RefreshToken
-export function useRefreshToken() {
-  return useMutation({
-    mutationFn: refreshToken,
   });
 }
 
@@ -65,9 +56,8 @@ export function useResetPassword() {
 // GetMe
 export function useGetMe() {
   return useQuery({
-    queryKey: ['user'],
+    queryKey: ["user"],
     queryFn: getMe,
-    enabled: Boolean(getAccessToken()),
     retry: false,
     refetchOnWindowFocus: false,
   });

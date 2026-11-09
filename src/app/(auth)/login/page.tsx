@@ -1,20 +1,21 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import type { z } from 'zod';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useLogin } from '@/hooks/auth.hook';
-import { getApiErrorMessage } from '@/lib/api-error';
-import { setAuthTokens } from '@/lib/auth-storage';
-import { useAuth } from '@/providers/auth.provider';
-import { loginSchema } from '@/validation/auth.validation';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useLogin } from "@/hooks/auth.hook";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { useAuth } from "@/providers/auth.provider";
+import type { ApiResponse, User } from "@/types/auth.type";
+import { loginSchema } from "@/validation/auth.validation";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -22,6 +23,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { setUser } = useAuth();
 
   const {
@@ -31,8 +33,8 @@ export default function LoginPage() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -40,32 +42,37 @@ export default function LoginPage() {
 
   function onSubmit(data: LoginFormValues) {
     login(data, {
-      onSuccess: response => {
-        const { accessToken, refreshToken, user } = response.data;
+      onSuccess: (response) => {
+        const { user } = response.data;
 
-        setAuthTokens(accessToken, refreshToken);
         setUser(user);
 
-        toast.success('Login successful.', {
+        queryClient.setQueryData<ApiResponse<User>>(["user"], {
+          success: response.success,
+          message: response.message,
+          data: user,
+        });
+
+        toast.success("Login successful.", {
           description: `Welcome back, ${user.firstName}!`,
         });
 
-        if (user.role === 'STUDENT') {
-          router.push('/student-dashboard');
+        if (user.role === "STUDENT") {
+          router.push("/student-dashboard");
           return;
         }
 
-        if (user.role === 'INSTRUCTOR') {
-          router.push('/instructor-dashboard');
+        if (user.role === "INSTRUCTOR") {
+          router.push("/instructor-dashboard");
           return;
         }
 
-        if (user.role === 'ADMIN') {
-          router.push('/admin-dashboard');
+        if (user.role === "ADMIN") {
+          router.push("/admin-dashboard");
         }
       },
 
-      onError: error => {
+      onError: (error) => {
         toast.error(getApiErrorMessage(error));
       },
     });
@@ -95,7 +102,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="you@example.com"
-              {...register('email')}
+              {...register("email")}
             />
 
             {errors.email && (
@@ -111,17 +118,17 @@ export default function LoginPage() {
             <div className="relative">
               <Input
                 id="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 className="pr-10"
-                {...register('password')}
+                {...register("password")}
               />
 
               <button
                 type="button"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => setShowPassword(value => !value)}
+                onClick={() => setShowPassword((value) => !value)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -150,13 +157,13 @@ export default function LoginPage() {
                 Logging in...
               </>
             ) : (
-              'Login'
+              "Login"
             )}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <Link
             href="/register"
             className="font-medium text-primary hover:underline"
