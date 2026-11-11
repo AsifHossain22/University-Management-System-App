@@ -9,6 +9,10 @@ export const instructorRoutes: SidebarItems = [
         url: '/instructor-dashboard',
       },
       {
+        title: 'My Sections',
+        url: '/instructor-dashboard/sections',
+      },
+      {
         title: 'Attendance',
         url: '/instructor-dashboard/attendance',
       },
