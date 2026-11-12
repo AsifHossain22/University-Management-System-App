@@ -16,6 +16,10 @@ export const instructorRoutes: SidebarItems = [
         title: 'Attendance',
         url: '/instructor-dashboard/attendance',
       },
+      {
+        title: 'Exams',
+        url: '/instructor-dashboard/exams',
+      },
     ],
   },
 ];
